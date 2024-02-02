@@ -1,0 +1,23 @@
+{
+  "name": "unremarkable-columnar-rag",
+  "dockerFile": "Dockerfile",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "github.vscode-github-actions",
+        "esbenp.prettier-vscode",
+        "ms-vscode.vscode-typescript-next",
+        "42Crunch.vscode-openapi"
+      ]
+    }
+  },
+  "containerEnv": {
+    "NODE_ENV": "development"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {},
+  },
+  "remoteUser": "vscode"
+}
