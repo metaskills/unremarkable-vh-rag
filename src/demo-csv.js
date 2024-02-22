@@ -13,7 +13,7 @@ const assistantsPage = await openai.beta.assistants.list({ limit: "100" });
 luxuryAssistant = assistantsPage.data.find((a) => a.name === "Luxury Apparel");
 
 if (luxuryAssistant !== undefined) {
-  console.log("🪲 Deleting assistant:", luxuryAssistant.id);
+  console.log("🪲  Deleting assistant:", luxuryAssistant.id);
   await openai.beta.assistants.del(luxuryAssistant.id);
 }
 
@@ -26,19 +26,19 @@ luxuryFile = fileObjectsPage.data.find(
 );
 
 if (luxuryFile !== undefined) {
-  console.log("🪲 Deleting file:", luxuryFile.id);
+  console.log("🪲  Deleting file:", luxuryFile.id);
   await openai.files.del(luxuryFile.id);
 }
 
-// Assistant, Thread, Message
+// Assistant w/File, Thread, Message
 
-console.log("🪲 Creating file...");
+console.log("🪲  Creating file...");
 luxuryFile = await openai.files.create({
   file: fs.createReadStream("data/Luxury_Products_Apparel_Data.csv"),
   purpose: "assistants",
 });
 
-console.log("🪲 Creating assistant...");
+console.log("🪲  Creating assistant...");
 luxuryAssistant = await openai.beta.assistants.create({
   name: "Luxury Apparel",
   description: "Find or Analyze",
@@ -48,16 +48,8 @@ luxuryAssistant = await openai.beta.assistants.create({
   file_ids: [luxuryFile.id],
 });
 
-const countQuery = "how many products do you have";
-console.log(`💬 ${countQuery}`);
-const luxuryThread = await openai.beta.threads.create({
-  messages: [
-    {
-      role: "user",
-      content: countQuery,
-    },
-  ],
-});
+console.log("🪲  Creating thread...");
+const luxuryThread = await openai.beta.threads.create();
 
 // Run, Steps
 
@@ -68,7 +60,7 @@ function sleep(ms) {
 async function run(assistant, thread) {
   let run;
   let running = true;
-  console.log("🪲 Running...");
+  console.log("🪲  Running...");
   run = await openai.beta.threads.runs.create(thread.id, {
     assistant_id: assistant.id,
   });
@@ -79,22 +71,37 @@ async function run(assistant, thread) {
       running = false;
     }
   }
-  // let runSteps = await openai.beta.threads.runs.steps.list(luxuryThread.id, run.id);
-  // console.log(runSteps.data);
+  let runSteps = await openai.beta.threads.runs.steps.list(
+    luxuryThread.id,
+    run.id
+  );
+  runSteps.data.forEach((step) => {
+    console.log("🪲  Step: " + JSON.stringify(step));
+  });
 }
+
+// Products Count
+
+const howManyProducts = "How many products do you have?";
+console.log(`💬 ${howManyProducts}`);
+
+await openai.beta.threads.messages.create(luxuryThread.id, {
+  role: "user",
+  content: howManyProducts,
+});
 
 await run(luxuryAssistant, luxuryThread);
 messages = await openai.beta.threads.messages.list(luxuryThread.id);
 console.log(`🤖 ${messages.data[0].content[0].text.value}`);
 
-// Diagram
+// Category Analysis
 
-const diagramQuery = "show me a diagram of the categories";
+const diagramQuery = "Show me a diagram of the categories.";
 console.log(`💬 ${diagramQuery}`);
-const diagramMessages = await openai.beta.threads.messages.create(
-  luxuryThread.id,
-  { role: "user", content: diagramQuery }
-);
+await openai.beta.threads.messages.create(luxuryThread.id, {
+  role: "user",
+  content: diagramQuery,
+});
 
 await run(luxuryAssistant, luxuryThread);
 messages = await openai.beta.threads.messages.list(luxuryThread.id);
@@ -108,11 +115,15 @@ for (const content of messages.data[0].content) {
   }
 }
 if (fileID) {
-  console.log("🪲 Get file content:", fileID);
+  console.log("🪲  Get file content:", fileID);
   const file = await openai.files.retrieve(fileID);
-  console.log(file);
-  console.log("🪲 Downloading file:", fileID);
+  console.log("🪲  File: " + JSON.stringify(file));
+  console.log("🪲  Downloading file:", fileID);
   const response = await openai.files.content(fileID);
   const writeStream = fs.createWriteStream("./images/diagram.png");
   response.body.pipe(writeStream);
 }
+
+// Search Products
+
+// Find men's accessories for a sophisticated comic book enthusiast.

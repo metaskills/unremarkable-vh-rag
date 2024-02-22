@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "demo": "node src/demo.js"
+    "demo-csv": "node src/demo-csv.js"
   },
   "dependencies": {
     "dotenv-flow": "^3.2.0",
