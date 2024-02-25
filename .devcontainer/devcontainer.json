@@ -1,5 +1,5 @@
 {
-  "name": "unremarkable-columnar-rag",
+  "name": "unremarkable-vh-rag",
   "dockerFile": "Dockerfile",
   "customizations": {
     "vscode": {
@@ -9,15 +9,15 @@
         "github.vscode-github-actions",
         "esbenp.prettier-vscode",
         "ms-vscode.vscode-typescript-next",
-        "42Crunch.vscode-openapi"
-      ]
-    }
+        "42Crunch.vscode-openapi",
+      ],
+    },
   },
   "containerEnv": {
-    "NODE_ENV": "development"
+    "NODE_ENV": "development",
   },
   "features": {
     "ghcr.io/devcontainers/features/common-utils:2": {},
   },
-  "remoteUser": "vscode"
+  "remoteUser": "vscode",
 }

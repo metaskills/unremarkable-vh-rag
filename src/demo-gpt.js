@@ -6,6 +6,12 @@ const openai = new OpenAI();
 
 let luxuryAssistant, luxuryFile, messages;
 
+const knowledgeFormat = process.env.KNOWLEDGE_FORMAT || "csv";
+let knowledgeFormatName = knowledgeFormat.toUpperCase();
+if (knowledgeFormat === "md") {
+  knowledgeFormatName = "Markdown";
+}
+
 // Helpers
 
 function log(message) {
@@ -36,6 +42,7 @@ async function run(assistant, thread) {
   while (running) {
     run = await openai.beta.threads.runs.retrieve(thread.id, run.id);
     await sleep(1000);
+    // debug("🐞 " + JSON.stringify(run));
     if (!/^(queued|in_progress|cancelling)$/.test(run.status)) {
       running = false;
     }
@@ -64,8 +71,8 @@ if (luxuryAssistant !== undefined) {
 
 const fileObjectsPage = await openai.files.list();
 
-luxuryFile = fileObjectsPage.data.find(
-  (f) => f.filename === "Luxury_Products_Apparel_Data.csv"
+luxuryFile = fileObjectsPage.data.find((f) =>
+  f.filename.startsWith("Luxury_Products_Apparel_Data")
 );
 
 if (luxuryFile !== undefined) {
@@ -77,7 +84,9 @@ if (luxuryFile !== undefined) {
 
 debug("Creating file...");
 luxuryFile = await openai.files.create({
-  file: fs.createReadStream("data/Luxury_Products_Apparel_Data.csv"),
+  file: fs.createReadStream(
+    `data/Luxury_Products_Apparel_Data.${knowledgeFormat}`
+  ),
   purpose: "assistants",
 });
 
@@ -85,16 +94,16 @@ debug("Creating assistant...");
 luxuryAssistant = await openai.beta.assistants.create({
   name: "Luxury Apparel",
   description: "Find or Analyze",
-  instructions: "You can search and analyze the luxury apparel CSV data.",
+  instructions: `You can search and analyze the luxury apparel ${knowledgeFormatName} data.`,
   tools: [{ type: "code_interpreter" }],
-  model: "gpt-4-turbo-preview",
+  model: "gpt-4-0125-preview",
   file_ids: [luxuryFile.id],
 });
 
 debug("Creating thread...");
 const luxuryThread = await openai.beta.threads.create();
 
-// Products Count
+// Count Products
 
 const howManyProducts = "How many products do you have?";
 log(howManyProducts);
@@ -110,7 +119,7 @@ ai(messages.data[0].content[0].text.value);
 
 // Category Analysis
 
-const diagramQuery = "Show me a diagram of the categories.";
+const diagramQuery = "Show me a bar chart with totals of each category.";
 log(diagramQuery);
 await openai.beta.threads.messages.create(luxuryThread.id, {
   role: "user",
@@ -134,11 +143,14 @@ if (fileID) {
   debug(`File: ${JSON.stringify(file)}`);
   debug(`Downloading file: ${fileID}`);
   const response = await openai.files.content(fileID);
-  const writeStream = fs.createWriteStream("./images/diagram.png");
+  const randSuffix = Math.random().toString(36).substring(2, 7);
+  const writeStream = fs.createWriteStream(
+    `./files/diagram-${knowledgeFormat}-${randSuffix}.png`
+  );
   response.body.pipe(writeStream);
 }
 
-// Search Products
+// Faceted Semantic Search
 
 const productSearch =
   "Find men's accessories for a sophisticated comic book enthusiast.";

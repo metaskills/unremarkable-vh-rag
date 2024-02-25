@@ -1,4 +1,6 @@
 /dist
+/files
+!/files/.keep
 /node_modules
 .env.*
 !.env.development
