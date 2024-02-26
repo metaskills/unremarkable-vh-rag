@@ -1,6 +1,5 @@
 import fs from "fs";
-import OpenAI from "openai";
-const openai = new OpenAI();
+import { openai } from "./utils/openai.js";
 
 // Setup
 

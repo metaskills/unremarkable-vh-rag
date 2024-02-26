@@ -4,11 +4,16 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "demo-gpt": "node src/demo-gpt.js"
+    "db:create": "node data/create.js",
+    "db:index": "node data/index.js",
+    "demo:gpt": "node src/demo-gpt.js",
+    "demo:rag": "node src/demo-rag.js"
   },
   "dependencies": {
+    "@opensearch-project/opensearch": "^2.5.0",
     "dotenv-flow": "^3.2.0",
-    "openai": "^4.2.6"
+    "openai": "^4.2.6",
+    "p-queue": "^7.4.1"
   },
   "devDependencies": {
     "cli-progress": "^3.12.0",

@@ -1,6 +1,7 @@
 {
   "name": "unremarkable-vh-rag",
-  "dockerFile": "Dockerfile",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "unremarkable-vh-rag",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -11,6 +12,12 @@
         "ms-vscode.vscode-typescript-next",
         "42Crunch.vscode-openapi",
       ],
+      "settings": {
+        "[html]": {
+          "editor.formatOnSave": true,
+          "editor.defaultFormatter": "vscode.html-language-features",
+        },
+      },
     },
   },
   "containerEnv": {
@@ -19,5 +26,10 @@
   "features": {
     "ghcr.io/devcontainers/features/common-utils:2": {},
   },
+  "forwardPorts": [9200, 9600, 5173, 5601, 3000],
   "remoteUser": "vscode",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/workspaces/${localWorkspaceFolderBasename},type=bind,consistency=cached",
+  ],
 }
