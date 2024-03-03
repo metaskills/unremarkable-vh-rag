@@ -92,7 +92,7 @@ luxuryFile = await openai.files.create({
 debug("Creating assistant...");
 luxuryAssistant = await openai.beta.assistants.create({
   name: "Luxury Apparel",
-  description: "Find or Analyze",
+  description: "Search or analyze the luxury apparel data.",
   instructions: `You can search and analyze the luxury apparel ${knowledgeFormatName} data.`,
   tools: [{ type: "code_interpreter" }],
   model: "gpt-4-0125-preview",
