@@ -29,6 +29,7 @@ This will run the various OpenAI Assistants API demos. If any image files like p
 
 ```bash
 npm run demo:gpt
+npm run demo:rag
 ```
 
 You can use the following environment variables to customize the demo:gpt command.
