@@ -1,7 +1,7 @@
 import { openai } from "./utils/openai.js";
 import { ai, debug } from "./utils/helpers.js";
 import { deleteAssistant, runAssistant } from "./utils/assistants.js";
-import { createMessage } from "./utils/messages.js";
+import { createMessage, readMessages } from "./utils/messages.js";
 import { runActions } from "./utils/tools.js";
 
 // Setup
@@ -10,9 +10,6 @@ const LuxuryMessages = [];
 const LuxuryThread = await openai.beta.threads.create();
 
 // Assistant
-
-// TODO: Add analyse (full)
-// TODO: Add analyse-aggregate (counts, numbers, etc)
 
 await deleteAssistant("Luxury Apparel (RAG)");
 
@@ -51,6 +48,4 @@ const countMsg = await createMessage(
 
 const countRun = await runAssistant(LuxuryAssistant, LuxuryThread);
 await runActions(countMsg, countRun);
-
-const messages = await openai.beta.threads.messages.list(LuxuryThread.id);
-ai(messages.data[0].content[0].text.value);
+await readMessages(LuxuryThread);

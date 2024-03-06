@@ -1,7 +1,7 @@
 import { openai } from "./openai.js";
-import { debug } from "./helpers.js";
+import { ai, debug } from "./helpers.js";
 
-async function createMessage(collection, thread, role, content) {
+const createMessage = async (collection, thread, role, content) => {
   if (role === "user") {
     console.log(`💬 ${content}`);
   } else {
@@ -14,6 +14,14 @@ async function createMessage(collection, thread, role, content) {
   debug("💌 " + JSON.stringify(msg));
   collection.unshift(msg);
   return msg;
-}
+};
 
-export { createMessage };
+const readMessages = async (thread) => {
+  const messages = await openai.beta.threads.messages.list(thread.id);
+  if (messages.data[0].content[0].text) {
+    ai(messages.data[0].content[0].text.value);
+  }
+  return messages;
+};
+
+export { createMessage, readMessages };
