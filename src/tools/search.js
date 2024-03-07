@@ -114,7 +114,8 @@ class _SearchTool {
       this.messages,
       this.thread,
       "user",
-      aMessage.content[0].text.value
+      aMessage.content[0].text.value,
+      false
     );
     const run = await runAssistant(this.assistant, this.thread);
     const output = await runActions(msg, run);

@@ -1,11 +1,13 @@
 import { openai } from "./openai.js";
 import { ai, debug } from "./helpers.js";
 
-const createMessage = async (collection, thread, role, content) => {
-  if (role === "user") {
-    console.log(`💬 ${content}`);
-  } else {
-    console.log(`🤖 ${content}`);
+const createMessage = async (collection, thread, role, content, log = true) => {
+  if (log) {
+    if (role === "user") {
+      console.log(`💬 ${content}`);
+    } else {
+      console.log(`🤖 ${content}`);
+    }
   }
   const msg = await openai.beta.threads.messages.create(thread.id, {
     role: role,
