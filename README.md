@@ -37,3 +37,10 @@ You can use the following environment variables to customize the demo:gpt comman
 - `DEBUG` Set to any value to enable debug 🪲 logging.
 - `KNOWLEDGE_FORMAT` Set to process a specific knowledge format. Options: `csv`, `json`, `md`. Defaults to CSV.
 
+## Access OpenSearch
+
+To access the OpenSearch Dashboards hosted in the dev container, use the following URL. Use the `admin` username and `admin` password to log in.
+
+```
+http://localhost:5601
+```

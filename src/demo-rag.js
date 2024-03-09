@@ -16,14 +16,15 @@ await deleteAssistant("Luxury Apparel (RAG)");
 debug("ℹ️  Creating (RAG) assistant...");
 const LuxuryAssistant = await openai.beta.assistants.create({
   name: "Luxury Apparel (RAG)",
-  description: "Search or analyze the luxury apparel data.",
+  description: "Search and/or analyze the luxury apparel data.",
   instructions: `You can search and analyze the luxury apparel data.`,
   tools: [
     {
       type: "function",
       function: {
         name: "search",
-        description: "Search for luxury apparel items using semantic search ",
+        description:
+          "Search for luxury apparel items using semantic search with OpenSearch and optionally perform data analysis on aggregate or large file results with code interpreter.",
         parameters: {
           type: "object",
           properties: {
@@ -39,13 +40,28 @@ const LuxuryAssistant = await openai.beta.assistants.create({
 
 // Count Products
 
-const countMsg = await createMessage(
+// const countMsg = await createMessage(
+//   LuxuryMessages,
+//   LuxuryThread,
+//   "user",
+//   "How many products do you have?"
+// );
+
+// const countRun = await runAssistant(LuxuryAssistant, LuxuryThread);
+// await runActions(countMsg, countRun);
+// await readMessages(LuxuryThread);
+
+// Category Analysis
+
+const diagramQuery = await createMessage(
   LuxuryMessages,
   LuxuryThread,
   "user",
-  "How many products do you have?"
+  "Show me a bar chart image with totals of each category."
 );
 
-const countRun = await runAssistant(LuxuryAssistant, LuxuryThread);
-await runActions(countMsg, countRun);
-await readMessages(LuxuryThread);
+const analyzeRun = await runAssistant(LuxuryAssistant, LuxuryThread);
+await runActions(diagramQuery, analyzeRun);
+console.log("\n\n\nHERE");
+const messages = await readMessages(LuxuryThread);
+// await downloadFile(messages, knowledgeFormat);

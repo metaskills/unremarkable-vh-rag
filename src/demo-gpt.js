@@ -52,7 +52,7 @@ const diagramQuery = await createMessage(
   LuxuryMessages,
   LuxuryThread,
   "user",
-  "Show me a bar chart with totals of each category."
+  "Show me a bar chart image with totals of each category."
 );
 
 await runAssistant(LuxuryAssistant, LuxuryThread);

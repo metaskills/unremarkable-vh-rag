@@ -20,6 +20,11 @@ const runActions = async (aMessage, aRun) => {
             toolOutput.output = await SearchTool.call(aMessage);
             isToolOuputs = true;
             break;
+          case "use_code_interpreter":
+            console.log("\n\n\n\n", aMessage);
+            toolOutput.output = await SearchTool.callCodeInterpreter(aMessage);
+            isToolOuputs = true;
+            break;
           case "return_opensearch_query":
             const args = JSON.parse(toolCall.function.arguments);
             toolOutput.output = await SearchTool.search(args);
@@ -49,6 +54,7 @@ const submitToolOutputs = async (run, toolOutputs) => {
     tool_outputs: toolOutputs,
   });
   const waitRun = await waitForRun(run);
+  await runActions(waitRun);
   const messages = await openai.beta.threads.messages.list(waitRun.thread_id);
   const output = messages.data[0].content[0].text.value;
   return output;

@@ -6,10 +6,12 @@ const sleep = (ms) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
+const isDebug = process.env.DEBUG;
+
 const debug = (message) => {
-  if (process.env.DEBUG) {
+  if (isDebug) {
     console.log(message);
   }
 };
 
-export { ai, sleep, debug };
+export { ai, sleep, isDebug, debug };

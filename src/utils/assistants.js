@@ -1,5 +1,5 @@
 import { openai } from "./openai.js";
-import { sleep, debug } from "./helpers.js";
+import { sleep, isDebug, debug } from "./helpers.js";
 
 const deleteAssistant = async (name) => {
   const assistant = (
@@ -27,10 +27,14 @@ const waitForRun = async (run) => {
     waitRun = await openai.beta.threads.runs.retrieve(run.thread_id, run.id);
     await sleep(1000);
     if (!/^(queued|in_progress|cancelling)$/.test(waitRun.status)) {
+      if (isDebug) {
+        delete waitRun.instructions;
+        delete waitRun.description;
+      }
       debug("🏃‍♂️ " + JSON.stringify(waitRun));
       running = false;
     } else {
-      debug("💨 " + JSON.stringify(waitRun));
+      debug("💨 " + JSON.stringify(waitRun.id));
     }
   }
   return waitRun;

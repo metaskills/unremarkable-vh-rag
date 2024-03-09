@@ -7,7 +7,8 @@
     "db:create": "node data/create.js",
     "db:index": "node data/index.js",
     "demo:gpt": "node src/demo-gpt.js",
-    "demo:rag": "node src/demo-rag.js"
+    "demo:rag": "node src/demo-rag.js",
+    "assistant:create": "node assistant/create.js"
   },
   "dependencies": {
     "@opensearch-project/opensearch": "^2.5.0",

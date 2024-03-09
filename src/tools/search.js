@@ -9,9 +9,9 @@ import { CATEGORIES, SUBCATEGORIES } from "../utils/categories.js";
 const INDEX_NAME = "luxuryproducts";
 
 const NAME = "Luxury Apparel (Search)";
-const DESCRIPTION = "Semantic and faceted search luxury apparel data.";
+const DESCRIPTION = "Search and analyze the luxury apparel data.";
 const INSTRUCTIONS = `
-You are a luxury products assistant. Your job is to help translate chat messages into an OpenSearch query that can be used to search an index named "${INDEX_NAME}". Here is a list of the index's mappings with each field's type and a short description:
+You are a luxury products assistant that allows users to perform semantic and faceted search for luxury apparel data. You can also post process aggregate data or large files with your code interpreter tool. When performing the 'return_opensearch_query' tool, your job is to help translate chat messages into an OpenSearch query that can be used to search an index named "${INDEX_NAME}". Here is a list of the index's mappings with each field's type and a short description:
 
 category:
   type: keyword
@@ -41,18 +41,44 @@ Reasoning: Use of size set to 0. No items needed. Only aggs with data.
 Answer:
 """
 {
-  search_type: "aggregate",
-  search_query: {
-    index: "${INDEX_NAME}",
-    body: {
-      size: 0,
-      query: { 
-        match_all: {}
+  "search_type": "aggregate",
+  "search_query": {
+    "index": "${INDEX_NAME}",
+    "body": {
+      "size": 0,
+      "query": { 
+        "match_all": {}
       },
-      aggs: { 
-        total_products: { 
-          value_count: { 
-            field: "_id"
+      "aggs": { 
+        "total_products": { 
+          "value_count": { 
+            "field": "_id"
+          }
+        }
+      }
+    }
+  }
+}
+"""
+
+Example: 2
+Question: Show me a bar chart image with totals of each category.
+Reasoning: Use of size set to 0. No items needed. Only aggs with data. Results will be used by the code_interpreter tool to create the image.
+Answer:
+"""
+{
+  "search_type": "aggregate",
+  "search_query": {
+    "index": "${INDEX_NAME}",
+    "body": {
+      "size": 0,
+      "query": { 
+        "match_all": {}
+      },
+      "aggs": { 
+        "total_by_category": { 
+          "terms": { 
+            "field": "category"
           }
         }
       }
@@ -81,7 +107,7 @@ const TOOLS = [
             type: "string",
             enum: ["aggregate", "items"],
             description:
-              "The type of search query. Example, an 'aggregate' query is one that returns a number value. For example, a sum or count. An 'items' query is a list of luxury product items, _id field only, that the query matches.",
+              "The type of search query. Example, an 'aggregate' query is one that returns a number value. For example, a sum or count. An 'items' query is a list of luxury product items, _id field only, that the query matches. Max items is 100.",
           },
           search_phrase: {
             type: "string",
@@ -90,6 +116,24 @@ const TOOLS = [
           },
         },
         required: ["search_query", "search_type"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "use_code_interpreter",
+      description:
+        "Run code interpreter on the OpenSearch results. This can be used to create images or perform other post processing on the JSON results using popular python data tools.",
+      parameters: {
+        type: "object",
+        properties: {
+          perform: {
+            type: "boolean",
+            description: "Perform code interpreter.",
+          },
+        },
+        required: ["perform"],
       },
     },
   },
@@ -110,6 +154,19 @@ class _SearchTool {
   }
 
   async call(aMessage) {
+    const msg = await createMessage(
+      this.messages,
+      this.thread,
+      "user",
+      aMessage.content[0].text.value,
+      false
+    );
+    const run = await runAssistant(this.assistant, this.thread);
+    const output = await runActions(msg, run);
+    return output;
+  }
+
+  async callCodeInterpreter(aMessage) {
     const msg = await createMessage(
       this.messages,
       this.thread,
