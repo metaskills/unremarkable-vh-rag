@@ -1,7 +1,7 @@
 import { openai } from "../src/utils/openai.js";
-import { createMessage, readMessages } from "../src/utils/messages.js";
+import { createMessage } from "../src/utils/messages.js";
 import { deleteAssistant, runAssistant } from "../src/utils/assistants.js";
-import { runActions } from "./utils/tools.js";
+import { searchTool } from "./tools/search.js";
 
 const NAME = "KCTest-ThreadLock";
 const MESSAGES = [];
@@ -36,6 +36,24 @@ const msg = await createMessage(
   "How many products do you have?"
 );
 
-const run = await runAssistant(ASSISTANT, THREAD);
-await runActions(msg, run);
-// await readMessages(THREAD);
+const mainRun = await runAssistant(ASSISTANT, THREAD);
+
+// The point of this is to show that once a thread has an
+// active run which requires tool outputs, you can not create
+// another run on that thread. This would have been nice
+// because we could have avoided passing messages around.
+//
+if (
+  mainRun.status === "requires_action" &&
+  mainRun.required_action.type === "submit_tool_outputs"
+) {
+  try {
+    // This will cause the following error which is what we expect.
+    // BadRequestError: 400 Thread thread_123 already has an active run run_123.
+    const toolRun = await runAssistant(searchTool.assistant, THREAD);
+  } catch (error) {
+    console.log("✅ " + error.message);
+  }
+} else {
+  console.log("❌ This should have failed.");
+}

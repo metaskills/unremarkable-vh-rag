@@ -25,7 +25,7 @@ const waitForRun = async (run) => {
   let running = true;
   while (running) {
     waitRun = await openai.beta.threads.runs.retrieve(run.thread_id, run.id);
-    await sleep(1000);
+    await sleep(500);
     if (!/^(queued|in_progress|cancelling)$/.test(waitRun.status)) {
       if (isDebug) {
         delete waitRun.instructions;
@@ -36,6 +36,13 @@ const waitForRun = async (run) => {
     } else {
       debug("💨 " + JSON.stringify(waitRun.id));
     }
+  }
+  const runSteps = await openai.beta.threads.runs.steps.list(
+    run.thread_id,
+    run.id
+  );
+  for (const step of runSteps.data) {
+    debug("👣 " + JSON.stringify(step));
   }
   return waitRun;
 };

@@ -52,7 +52,6 @@ const submitToolOutputs = async (run, toolOutputs) => {
   await runActions(undefined, waitRun);
   const messages = await openai.beta.threads.messages.list(waitRun.thread_id);
   const output = messages.data[0].content[0].text.value;
-  ai(output);
   return output;
 };
 

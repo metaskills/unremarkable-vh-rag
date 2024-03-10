@@ -9,7 +9,10 @@
     "demo:gpt": "node src/demo-gpt.js",
     "demo:rag": "node src/demo-rag.js",
     "assistant:create": "node assistant/create.js",
-    "exp:thread-lock": "DEBUG=1 node exp/thread-lock.js"
+    "exp:thread-lock": "node exp/thread-lock.js",
+    "exp:thread-lock:debug": "DEBUG=1 node exp/thread-lock.js",
+    "exp:basic-panel": "node exp/basic-panel.js",
+    "exp:basic-panel:debug": "DEBUG=1 node exp/basic-panel.js"
   },
   "dependencies": {
     "@opensearch-project/opensearch": "^2.5.0",
