@@ -1,5 +1,7 @@
 {
   "files.exclude": {
-    "assistant/UAAv*": true
+    "assistant/UAAv*": true,
+    "results/*.txt": true,
+    "results/*.png": true
   }
 }

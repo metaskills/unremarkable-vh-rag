@@ -6,7 +6,7 @@ const deleteAssistant = async (name) => {
     await openai.beta.assistants.list({ limit: "100" })
   ).data.find((a) => a.name === name);
   if (assistant !== undefined) {
-    debug(`🗑️  Deleting assistant: ${assistant.id}`);
+    debug(`🗑️  Deleting assistant: ${name}`);
     await openai.beta.assistants.del(assistant.id);
   }
 };

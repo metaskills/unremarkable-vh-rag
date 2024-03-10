@@ -8,7 +8,8 @@
     "db:index": "node data/index.js",
     "demo:gpt": "node src/demo-gpt.js",
     "demo:rag": "node src/demo-rag.js",
-    "assistant:create": "node assistant/create.js"
+    "assistant:create": "node assistant/create.js",
+    "exp:thread-lock": "DEBUG=1 node exp/thread-lock.js"
   },
   "dependencies": {
     "@opensearch-project/opensearch": "^2.5.0",
