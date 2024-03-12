@@ -32,7 +32,6 @@ const ASSISTANT = await openai.beta.assistants.create({
 const msg = await createMessage(
   MESSAGES,
   THREAD,
-  "user",
   "How many products do you have?"
 );
 

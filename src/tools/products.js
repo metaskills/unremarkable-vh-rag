@@ -92,7 +92,7 @@ const TOOLS = [
   {
     type: "function",
     function: {
-      name: "return_opensearch_query",
+      name: "products.opensearch_query",
       description:
         "A fully formed OpenSearch query based on the user's request.",
       parameters: {
@@ -122,7 +122,7 @@ const TOOLS = [
   {
     type: "function",
     function: {
-      name: "use_code_interpreter",
+      name: "products.code_interpreter",
       description:
         "Run code interpreter on the OpenSearch results. This can be used to create images or perform other post processing on the JSON results using popular python data tools.",
       parameters: {
@@ -141,7 +141,7 @@ const TOOLS = [
 
 // Setup
 
-class _SearchTool {
+class ProductsTool {
   constructor() {
     this.messages = [];
     this.model = "gpt-4-0125-preview";
@@ -153,33 +153,19 @@ class _SearchTool {
     this.thread = await openai.beta.threads.create();
   }
 
-  async call(aMessage) {
-    const msg = await createMessage(
-      this.messages,
-      this.thread,
-      "user",
-      aMessage.content[0].text.value,
-      false
-    );
+  async ask(aMessage) {
+    let msg;
+    if (aMessage) {
+      msg = await createMessage(this.messages, this.thread, aMessage, false);
+    } else {
+      msg = aMessage;
+    }
     const run = await runAssistant(this.assistant, this.thread);
-    const output = await runActions(msg, run);
-    return output;
+    const output = await runActions(run, msg);
+    return { message: msg, output: output };
   }
 
-  async callCodeInterpreter(aMessage) {
-    const msg = await createMessage(
-      this.messages,
-      this.thread,
-      "user",
-      aMessage.content[0].text.value,
-      false
-    );
-    const run = await runAssistant(this.assistant, this.thread);
-    const output = await runActions(msg, run);
-    return output;
-  }
-
-  async search(args) {
+  async opensearchQuery(args) {
     let rValue;
     const query = JSON.parse(args.search_query);
     const response = await opensearch.search(query);
@@ -206,6 +192,18 @@ class _SearchTool {
     return typeof rValue === "string" ? rValue : JSON.stringify(rValue);
   }
 
+  async codeInterpreter(aMessage) {
+    let msg;
+    if (aMessage) {
+      msg = await createMessage(this.messages, this.thread, aMessage, false);
+    } else {
+      msg = aMessage;
+    }
+    const run = await runAssistant(this.assistant, this.thread);
+    const output = await runActions(run, msg);
+    return { message: msg, output: output };
+  }
+
   // Private
 
   async createAssistant() {
@@ -221,7 +219,7 @@ class _SearchTool {
   }
 }
 
-const SearchTool = new _SearchTool();
-await SearchTool.init();
+const products = new ProductsTool();
+await products.init();
 
-export { SearchTool };
+export { products };

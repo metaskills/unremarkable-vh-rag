@@ -3,7 +3,7 @@ import { ai, debug } from "../../src/utils/helpers.js";
 import { waitForRun } from "../../src/utils/assistants.js";
 import { searchTool } from "../tools/search.js";
 
-const runActions = async (aMessage, aRun) => {
+const runActions = async (aRun, aMessage) => {
   if (
     aRun.status === "requires_action" &&
     aRun.required_action.type === "submit_tool_outputs"
@@ -17,11 +17,11 @@ const runActions = async (aMessage, aRun) => {
         const toolOutput = { tool_call_id: toolCall.id };
         const functionArgs = JSON.parse(toolCall.function.arguments);
         switch (toolCall.function.name) {
-          case "main.search":
-            toolOutput.output = await searchTool.call(aMessage);
+          case "main.products":
+            toolOutput.output = await searchTool.ask(aMessage);
             isToolOuputs = true;
             break;
-          case "search.products":
+          case "products.search":
             toolOutput.output = await searchTool.search(functionArgs);
             isToolOuputs = true;
             break;
@@ -49,7 +49,7 @@ const submitToolOutputs = async (run, toolOutputs) => {
     tool_outputs: toolOutputs,
   });
   const waitRun = await waitForRun(run);
-  await runActions(undefined, waitRun);
+  await runActions(waitRun, undefined);
   const messages = await openai.beta.threads.messages.list(waitRun.thread_id);
   const output = messages.data[0].content[0].text.value;
   return output;

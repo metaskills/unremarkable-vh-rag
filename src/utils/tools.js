@@ -1,34 +1,35 @@
 import { openai } from "./openai.js";
 import { debug } from "./helpers.js";
 import { waitForRun } from "./assistants.js";
-import { SearchTool } from "../tools/search.js";
+import { products } from "../tools/products.js";
 
-const runActions = async (aMessage, aRun) => {
+const runActions = async (aRun, aMessage) => {
   if (
     aRun.status === "requires_action" &&
     aRun.required_action.type === "submit_tool_outputs"
   ) {
-    let isToolOuputs = false;
+    let toolMessage;
     const toolOutputs = [];
     const toolCalls = aRun.required_action.submit_tool_outputs.tool_calls;
     for (const toolCall of toolCalls) {
+      let response;
       debug("🧰 " + JSON.stringify(toolCall));
       if (toolCall.type === "function") {
         const toolOutput = { tool_call_id: toolCall.id };
         switch (toolCall.function.name) {
-          case "search":
-            toolOutput.output = await SearchTool.call(aMessage);
-            isToolOuputs = true;
+          case "main.products":
+            response = await products.ask(aMessage);
+            toolOutput.output = response.output;
+            toolMessage = response.message;
             break;
-          case "use_code_interpreter":
-            console.log("\n\n\n\n", aMessage);
-            toolOutput.output = await SearchTool.callCodeInterpreter(aMessage);
-            isToolOuputs = true;
-            break;
-          case "return_opensearch_query":
+          case "products.opensearch_query":
             const args = JSON.parse(toolCall.function.arguments);
-            toolOutput.output = await SearchTool.search(args);
-            isToolOuputs = true;
+            toolOutput.output = await products.opensearchQuery(args);
+            break;
+          case "products.code_interpreter":
+            response = await products.codeInterpreter(aMessage);
+            toolOutput.output = response.output;
+            toolMessage = response.message;
             break;
           default:
             break;
@@ -37,9 +38,14 @@ const runActions = async (aMessage, aRun) => {
         toolOutputs.push(toolOutput);
       }
     }
-    if (isToolOuputs) {
-      const output = await submitToolOutputs(aRun, toolOutputs);
-      return output;
+    // toolMessage;
+    if (toolOutputs.some((tool) => tool.hasOwnProperty("output"))) {
+      const toolsOutput = await submitToolOutputs(
+        aRun,
+        toolOutputs,
+        toolMessage
+      );
+      return toolsOutput;
     } else {
       return false;
     }
@@ -48,14 +54,16 @@ const runActions = async (aMessage, aRun) => {
   }
 };
 
-const submitToolOutputs = async (run, toolOutputs) => {
+const submitToolOutputs = async (run, toolOutputs, toolMessage) => {
   debug("ℹ️  Submitting outputs...");
   await openai.beta.threads.runs.submitToolOutputs(run.thread_id, run.id, {
     tool_outputs: toolOutputs,
   });
   const waitRun = await waitForRun(run);
-  await runActions(waitRun);
+  // TODO: Not a good look on that first arg.
+  await runActions(waitRun, toolMessage);
   const messages = await openai.beta.threads.messages.list(waitRun.thread_id);
+  // console.log("\n\n\n\n", messages);
   const output = messages.data[0].content[0].text.value;
   return output;
 };

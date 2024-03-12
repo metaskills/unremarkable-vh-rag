@@ -1,16 +1,14 @@
 import { openai } from "./openai.js";
 import { ai, debug } from "./helpers.js";
 
-const createMessage = async (collection, thread, role, content, log = true) => {
+const createMessage = async (collection, thread, message, log = true) => {
+  const content =
+    typeof message === "string" ? message : message.content[0].text.value;
   if (log) {
-    if (role === "user") {
-      console.log(`💬 ${content}`);
-    } else {
-      console.log(`🤖 ${content}`);
-    }
+    console.log(`💬 ${content}`);
   }
   const msg = await openai.beta.threads.messages.create(thread.id, {
-    role: role,
+    role: "user",
     content: content,
   });
   debug("💌 " + JSON.stringify(msg));

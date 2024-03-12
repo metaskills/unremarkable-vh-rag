@@ -18,16 +18,15 @@ class SearchTool {
     this.thread = await openai.beta.threads.create();
   }
 
-  async call(aMessage) {
+  async ask(aMessage) {
     const msg = await createMessage(
       this.messages,
       this.thread,
-      "user",
-      aMessage.content[0].text.value,
+      aMessage,
       false
     );
     const run = await runAssistant(this.assistant, this.thread);
-    const output = await runActions(msg, run);
+    const output = await runActions(run, msg);
     return output;
   }
 
@@ -48,7 +47,7 @@ class SearchTool {
         {
           type: "function",
           function: {
-            name: "search.products",
+            name: "products.search",
             description: "Search OpenSearch Database.",
             parameters: {
               type: "object",

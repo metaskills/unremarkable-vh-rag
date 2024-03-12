@@ -17,7 +17,7 @@ const ASSISTANT = await openai.beta.assistants.create({
     {
       type: "function",
       function: {
-        name: "main.search",
+        name: "main.products",
         description: "Search products.",
         parameters: {
           type: "object",
@@ -32,10 +32,9 @@ const ASSISTANT = await openai.beta.assistants.create({
 const msg = await createMessage(
   MESSAGES,
   THREAD,
-  "user",
   "How many products do you have?"
 );
 
 const run = await runAssistant(ASSISTANT, THREAD);
-await runActions(msg, run);
+await runActions(run, msg);
 await readMessages(THREAD);

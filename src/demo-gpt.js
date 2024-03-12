@@ -2,7 +2,6 @@ import { openai } from "./utils/openai.js";
 import { ai, debug } from "./utils/helpers.js";
 import { deleteAssistant, runAssistant } from "./utils/assistants.js";
 import { createMessage, readMessages } from "./utils/messages.js";
-import { runActions } from "./utils/tools.js";
 import { reCreateFile, downloadFile } from "./utils/files.js";
 
 // Setup
@@ -39,7 +38,6 @@ const LuxuryAssistant = await openai.beta.assistants.create({
 const countMsg = await createMessage(
   LuxuryMessages,
   LuxuryThread,
-  "user",
   "How many products do you have?"
 );
 
@@ -51,7 +49,6 @@ await readMessages(LuxuryThread);
 const diagramQuery = await createMessage(
   LuxuryMessages,
   LuxuryThread,
-  "user",
   "Show me a bar chart image with totals of each category."
 );
 
@@ -64,7 +61,6 @@ await downloadFile(messages, knowledgeFormat);
 const productSearch = await createMessage(
   LuxuryMessages,
   LuxuryThread,
-  "user",
   "Find men's accessories for a sophisticated comic book enthusiast."
 );
 
