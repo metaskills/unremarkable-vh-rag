@@ -9,7 +9,6 @@ const runActions = async (aRun, aMessage, tools) => {
     aRun.required_action.type === "submit_tool_outputs"
   ) {
     let isToolOuputs = false;
-    let lastMessage = messageContent(aMessage);
     const toolOutputs = [];
     const toolCalls = aRun.required_action.submit_tool_outputs.tool_calls;
     debug("🚧 " + JSON.stringify(toolCalls.map((tc) => tc.function.name)));
@@ -23,13 +22,11 @@ const runActions = async (aRun, aMessage, tools) => {
             tools[toolCall.function.name] &&
             typeof tools[toolCall.function.name].ask === "function"
           ) {
-            console.log("\n\nlastMessage: " + lastMessage);
             const output = await tools[toolCall.function.name].ask(
-              lastMessage,
+              messageContent(aMessage),
               functionArgs
             );
             console.log("\n\noutput: " + output + "\n\n");
-            lastMessage = output;
             toolOutput.output = output;
             isToolOuputs = true;
           }
@@ -39,7 +36,7 @@ const runActions = async (aRun, aMessage, tools) => {
       }
     }
     if (isToolOuputs) {
-      const output = await submitToolOutputs(aRun, toolOutputs);
+      const output = await submitToolOutputs(aRun, toolOutputs, tools);
       return output;
     } else {
       return await messagesContent(aRun.thread_id);
@@ -49,13 +46,13 @@ const runActions = async (aRun, aMessage, tools) => {
   }
 };
 
-const submitToolOutputs = async (run, toolOutputs) => {
+const submitToolOutputs = async (run, toolOutputs, tools) => {
   debug("ℹ️  Submitting outputs...");
   await openai.beta.threads.runs.submitToolOutputs(run.thread_id, run.id, {
     tool_outputs: toolOutputs,
   });
   const waitRun = await waitForRun(run);
-  await runActions(waitRun, undefined);
+  await runActions(waitRun, toolOutputs[0].output, tools);
   const messages = await openai.beta.threads.messages.list(waitRun.thread_id);
   console.log("\n\nmessages: " + JSON.stringify(messages), "\n\n");
   const output = messages.data[0].content[0].text.value;
