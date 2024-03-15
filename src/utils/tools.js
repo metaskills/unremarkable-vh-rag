@@ -3,7 +3,7 @@ import { debug } from "./helpers.js";
 import { waitForRun } from "./assistants.js";
 import { products } from "../tools/products.js";
 
-const runActions = async (aRun, aMessage) => {
+const runActions = async (aRun, aMessage, callback) => {
   if (
     aRun.status === "requires_action" &&
     aRun.required_action.type === "submit_tool_outputs"
@@ -60,10 +60,8 @@ const submitToolOutputs = async (run, toolOutputs, toolMessage) => {
     tool_outputs: toolOutputs,
   });
   const waitRun = await waitForRun(run);
-  // TODO: Not a good look on that first arg.
   await runActions(waitRun, toolMessage);
   const messages = await openai.beta.threads.messages.list(waitRun.thread_id);
-  // console.log("\n\n\n\n", messages);
   const output = messages.data[0].content[0].text.value;
   return output;
 };

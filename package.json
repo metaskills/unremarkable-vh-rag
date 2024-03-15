@@ -14,7 +14,9 @@
     "exp:thread-lock": "node exp/thread-lock.js",
     "exp:thread-lock:debug": "DEBUG=1 node exp/thread-lock.js",
     "exp:basic-panel": "node exp/basic-panel.js",
-    "exp:basic-panel:debug": "DEBUG=1 node exp/basic-panel.js"
+    "exp:basic-panel:debug": "DEBUG=1 node exp/basic-panel.js",
+    "exp:multi-tool": "node exp/multi-tool.js",
+    "exp:multi-tool:debug": "DEBUG=1 node exp/multi-tool.js"
   },
   "dependencies": {
     "@opensearch-project/opensearch": "^2.5.0",
