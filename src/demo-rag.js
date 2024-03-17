@@ -60,6 +60,4 @@ const diagramQuery = await createMessage(
 
 const analyzeRun = await runAssistant(LuxuryAssistant, LuxuryThread);
 await runActions(analyzeRun, diagramQuery);
-console.log("\n\n\nHERE");
-const messages = await readMessages(LuxuryThread);
-// await downloadFile(messages, knowledgeFormat);
+await readMessages(LuxuryThread);

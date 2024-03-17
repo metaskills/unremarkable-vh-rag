@@ -1,5 +1,6 @@
 import { openai } from "./openai.js";
 import { ai, debug } from "./helpers.js";
+import { downloadFile } from "./files.js";
 
 const createMessage = async (collection, thread, message, log = true) => {
   const content = messageContent(message);
@@ -16,34 +17,49 @@ const createMessage = async (collection, thread, message, log = true) => {
 };
 
 const messageContent = (msg) => {
-  let message = "";
-  if (typeof msg === "string") {
-    message = msg;
-  } else if (msg && msg.role === "user") {
-    message = msg.content[0].text.value;
-  } else if (msg && msg.role === "assistant") {
-    message = msg.content[0].text.value;
+  if (typeof msg === "string") return msg;
+  if (msg.content.length > 1) {
+    debug("📤 (2 or More)" + JSON.stringify(msg));
   }
-  return message;
+  const textContents = msg.content.filter((c) => c.type === "text");
+  return textContents[0].text.value;
 };
 
 const messagesContent = async (thread) => {
   const content = [];
   const messages = await readMessages(thread);
   for (const message of messages.data) {
-    // console.log("\nmessage: " + JSON.stringify(message), "\n");
     content.push(messageContent(message));
   }
-  // console.log("\ncontent: " + content.join("\n").trim(), "\n");
-  // return content.join("\n").trim();
   return content[0].trim();
 };
 
 const readMessages = async (thread) => {
   const threadId = typeof thread === "string" ? thread : thread.id;
   const messages = await openai.beta.threads.messages.list(threadId);
-  if (messages.data[0].content[0].text) {
-    ai(messages.data[0].content[0].text.value);
+  for (const message of messages.data) {
+    if (message.role === "assistant") {
+      // Assistant Text.
+      for (const content of message.content.filter((c) => c.type === "text")) {
+        const message = content.text.value;
+        ai(message);
+      }
+      // Assistant Files.
+      if (message.content.some((c) => /file/.test(c.type))) {
+        for (const content of message.content.filter(
+          (c) => c.type === "text" && c.text.annotations
+        )) {
+          for (const annotation of content.text.annotations) {
+            if (annotation.type === "file_path") {
+              const fileID = annotation.file_path.file_id;
+              const filePath = annotation.text;
+              const fileName = filePath.split("/").pop();
+              await downloadFile(fileID, fileName);
+            }
+          }
+        }
+      }
+    }
   }
   return messages;
 };

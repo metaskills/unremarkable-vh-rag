@@ -2,7 +2,7 @@ import { openai } from "./utils/openai.js";
 import { ai, debug } from "./utils/helpers.js";
 import { deleteAssistant, runAssistant } from "./utils/assistants.js";
 import { createMessage, readMessages } from "./utils/messages.js";
-import { reCreateFile, downloadFile } from "./utils/files.js";
+import { reCreateFile } from "./utils/files.js";
 
 // Setup
 
@@ -53,8 +53,7 @@ const diagramQuery = await createMessage(
 );
 
 await runAssistant(LuxuryAssistant, LuxuryThread);
-const messages = await readMessages(LuxuryThread);
-await downloadFile(messages, knowledgeFormat);
+await readMessages(LuxuryThread);
 
 // Faceted Semantic Search
 

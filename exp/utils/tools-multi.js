@@ -11,10 +11,10 @@ const runActions = async (aRun, aMessage, tools) => {
     let isToolOuputs = false;
     const toolOutputs = [];
     const toolCalls = aRun.required_action.submit_tool_outputs.tool_calls;
-    debug("🚧 " + JSON.stringify(toolCalls.map((tc) => tc.function.name)));
+    debug("🧰 " + JSON.stringify(toolCalls.map((tc) => tc.function.name)));
     if (typeof tools === "object" && tools !== null) {
       for (const toolCall of toolCalls) {
-        debug("🧰 " + JSON.stringify(toolCall));
+        debug("🪚 " + JSON.stringify(toolCall));
         if (toolCall.type === "function") {
           const toolOutput = { tool_call_id: toolCall.id };
           const functionArgs = JSON.parse(toolCall.function.arguments);
@@ -26,11 +26,10 @@ const runActions = async (aRun, aMessage, tools) => {
               messageContent(aMessage),
               functionArgs
             );
-            console.log("\n\noutput: " + output + "\n\n");
             toolOutput.output = output;
             isToolOuputs = true;
           }
-          debug("🍿 " + JSON.stringify(toolOutput));
+          debug("🪵 " + JSON.stringify(toolOutput));
           toolOutputs.push(toolOutput);
         }
       }
@@ -47,15 +46,17 @@ const runActions = async (aRun, aMessage, tools) => {
 };
 
 const submitToolOutputs = async (run, toolOutputs, tools) => {
-  debug("ℹ️  Submitting outputs...");
+  debug("🏡  Submitting outputs...");
   await openai.beta.threads.runs.submitToolOutputs(run.thread_id, run.id, {
     tool_outputs: toolOutputs,
   });
-  const waitRun = await waitForRun(run);
-  await runActions(waitRun, toolOutputs[0].output, tools);
-  const messages = await openai.beta.threads.messages.list(waitRun.thread_id);
-  console.log("\n\nmessages: " + JSON.stringify(messages), "\n\n");
-  const output = messages.data[0].content[0].text.value;
+  const submitRun = await waitForRun(run);
+  const output = await runActions(submitRun, toolOutputs[0].output, tools);
+
+  // const messages = await openai.beta.threads.messages.list(submitRun.thread_id);
+  // console.log("\n\nmessages: " + JSON.stringify(messages), "\n\n");
+  // const output = messages.data[0].content[0].text.value;
+
   return output;
 };
 
