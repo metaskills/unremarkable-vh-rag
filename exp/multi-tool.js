@@ -164,18 +164,19 @@ class MultiToolAgent {
 
   // Private
 
-  // Here are some examples of the types of requests you will receive.
-  //
-  // Example 1:
-  // Question: Show me a bar chart image with totals of each product category.
-  // Tools: build-query, execute-query, code_interpreter
-  // Reasoning: The user is asking for a chart, so we need to build a query to get the data and then execute the query so we can pass the data to code interpreter to build an image.
   async createAssistant() {
     const assistant = await openai.beta.assistants.create({
       name: this.agentName,
       description: "Respond to user questions for products by calling tools",
       instructions: `
 Call the various tools in the order that makes sense to respond to the user's request.
+
+Here are some examples of the types of requests you will receive.
+
+Example 1:
+Question: Show me a bar chart image with totals of each product category.
+Tools: build-query, execute-query, code_interpreter
+Reasoning: The user is asking for a chart, so we need to build a query to get the data and then execute the query so we can pass the data to code interpreter to build an image.
       `.trim(),
       model: this.model,
       tools: [
@@ -198,8 +199,8 @@ Call the various tools in the order that makes sense to respond to the user's re
             description: "Execute SQL queries to return CSV data",
             parameters: {
               type: "object",
-              properties: { message: { type: "string" } },
-              required: ["message"],
+              properties: { sql: { type: "string" } },
+              required: ["sql"],
             },
           },
         },
