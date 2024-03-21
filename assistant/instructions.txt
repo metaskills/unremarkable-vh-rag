@@ -24,6 +24,8 @@ I wonder if there needs to be a PK/FK sort of thing for the main thread to each 
 
 I have been using a Run's status to determine if any tools (or tools) are needed. If so they are executed in parallel and their outputs are submitted to the Run. In our framework, I have yet to take advantage of the Run's steps API call. Could you explain what might be the benefits and potential drawbacks of using Run Steps more in our architecture?
 
+Depending on the message, an LLM might respond with "instruction only" context and never use tools or retrieval. 
+
 ## IMPORTANT
 
 Please make sure every question the user asks you always consult the documentation and files provided to this assistant. Never answer a question without retrieval.

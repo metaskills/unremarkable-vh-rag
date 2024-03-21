@@ -55,20 +55,6 @@ Important rules to follow:
 2. Do not use fenced code blocks or markdown.
       `.trim(),
       model: this.model,
-      tools: [
-        {
-          type: "function",
-          function: {
-            name: `tool-${this.name}`,
-            description: "Generate SQL queries to find products.",
-            parameters: {
-              type: "object",
-              properties: { perform: { type: "boolean" } },
-              required: ["perform"],
-            },
-          },
-        },
-      ],
     });
     debug(`💁‍♂️ Created ${this.agentName} assistant ${assistant.id}...`);
     return assistant;
@@ -110,7 +96,7 @@ class QueryExecutorTool {
     const assistant = await openai.beta.assistants.create({
       name: this.agentName,
       description:
-        "Pretend to execute queries on a MySQL database and return fase CSV data.",
+        "Pretend to execute queries on a MySQL database and return fake CSV data.",
       instructions: `
 Here is the fictional database table we are giving you queries for.
 
@@ -120,17 +106,22 @@ CREATE TABLE products (
   category VARCHAR(255) NOT NULL
 );
 
-Here are some examples of the types of queries you will be asked to execute and the fake return CSV data.
+Here are some examples of the types of queries you will be asked to execute and return fake CSV data.
 
 Example 1:
-Question: SELECT category, COUNT(*) AS total FROM products GROUP BY category;
-Answer: 
+Query: SELECT category, COUNT(*) AS total FROM products GROUP BY category;
+Data: 
 category,COUNT(*)
-Electronics,15
-Books,10
-Home & Garden,20
-Clothing,25
-Toys,5
+Accessories,1200
+Shoes,1000
+Shirts,800
+Activewear,600
+Pants,500
+Jackets/Coats,400
+Underwear and Nightwear,300
+Suits,250
+Sweaters,200
+Jewelry,150
 
 Important rules to follow:
 
@@ -138,20 +129,6 @@ Important rules to follow:
 2. Do not use fenced code blocks or markdown.
       `.trim(),
       model: this.model,
-      tools: [
-        {
-          type: "function",
-          function: {
-            name: `tool-${this.name}`,
-            description: "Return fake rows of products using SQL queries.",
-            parameters: {
-              type: "object",
-              properties: { perform: { type: "boolean" } },
-              required: ["perform"],
-            },
-          },
-        },
-      ],
     });
     debug(`💁‍♂️ Created ${this.agentName} assistant ${assistant.id}...`);
     return assistant;
@@ -209,8 +186,8 @@ Call the various tools in the order that makes sense to respond to the user's re
             description: "Generate SQL queries to find products",
             parameters: {
               type: "object",
-              properties: { perform: { type: "boolean" } },
-              required: ["perform"],
+              properties: { message: { type: "string" } },
+              required: ["message"],
             },
           },
         },
@@ -221,8 +198,8 @@ Call the various tools in the order that makes sense to respond to the user's re
             description: "Execute SQL queries to return CSV data",
             parameters: {
               type: "object",
-              properties: { perform: { type: "boolean" } },
-              required: ["perform"],
+              properties: { message: { type: "string" } },
+              required: ["message"],
             },
           },
         },
