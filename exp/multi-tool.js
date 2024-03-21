@@ -171,12 +171,8 @@ class MultiToolAgent {
       instructions: `
 Call the various tools in the order that makes sense to respond to the user's request.
 
-Here are some examples of the types of requests you will receive.
-
-Example 1:
-Question: Show me a bar chart image with totals of each product category.
-Tools: build-query, execute-query, code_interpreter
-Reasoning: The user is asking for a chart, so we need to build a query to get the data and then execute the query so we can pass the data to code interpreter to build an image.
+1. Do not mention download links in the response. 
+2. Assume generated images are shown to the user.
       `.trim(),
       model: this.model,
       tools: [
