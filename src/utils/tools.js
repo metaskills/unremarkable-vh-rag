@@ -3,7 +3,7 @@ import { debug } from "../../src/utils/helpers.js";
 import { messageContent, messagesContent } from "../../src/utils/messages.js";
 import { waitForRun } from "../../src/utils/assistants.js";
 
-const runActions = async (aRun, aMessage, tools, options = {}) => {
+const runActions = async (asst, aRun, aMessage, options = {}) => {
   if (
     aRun.status === "requires_action" &&
     aRun.required_action.type === "submit_tool_outputs"
@@ -12,18 +12,18 @@ const runActions = async (aRun, aMessage, tools, options = {}) => {
     const toolOutputs = [];
     const toolCalls = aRun.required_action.submit_tool_outputs.tool_calls;
     debug("🧰 " + JSON.stringify(toolCalls.map((tc) => tc.function.name)));
-    if (typeof tools === "object" && tools !== null) {
+    if (typeof asst.tools === "object" && asst.tools !== null) {
       for (const toolCall of toolCalls) {
         debug("🪚 " + JSON.stringify(toolCall));
         if (toolCall.type === "function") {
           const toolOutput = { tool_call_id: toolCall.id };
           const functionArgs = JSON.parse(toolCall.function.arguments);
           if (
-            tools[toolCall.function.name] &&
-            typeof tools[toolCall.function.name].ask === "function"
+            asst.tools[toolCall.function.name] &&
+            typeof asst.tools[toolCall.function.name].ask === "function"
           ) {
-            const output = await tools[toolCall.function.name].ask(
-              messageContent(aMessage, options),
+            const output = await asst.tools[toolCall.function.name].ask(
+              messageContent(asst.messages[0], options),
               functionArgs
             );
             toolOutput.output = output;
@@ -35,7 +35,7 @@ const runActions = async (aRun, aMessage, tools, options = {}) => {
       }
     }
     if (isToolOuputs) {
-      const output = await submitToolOutputs(aRun, toolOutputs, tools, options);
+      const output = await submitToolOutputs(asst, aRun, toolOutputs, options);
       return output;
     } else {
       return await messagesContent(aRun.thread_id, options);
@@ -45,16 +45,16 @@ const runActions = async (aRun, aMessage, tools, options = {}) => {
   }
 };
 
-const submitToolOutputs = async (run, toolOutputs, tools, options = {}) => {
+const submitToolOutputs = async (asst, run, toolOutputs, options = {}) => {
   debug("🏡  Submitting outputs...");
   await openai.beta.threads.runs.submitToolOutputs(run.thread_id, run.id, {
     tool_outputs: toolOutputs,
   });
   const submitRun = await waitForRun(run);
   const output = await runActions(
+    asst,
     submitRun,
     toolOutputs[0].output,
-    tools,
     options
   );
   return output;

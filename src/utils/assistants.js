@@ -3,17 +3,12 @@ import { sleep, isDebug, debug } from "./helpers.js";
 import { createMessage } from "./messages.js";
 import { runActions } from "./tools.js";
 
-const askAssistant = async (that, aMessage, fOptions = {}) => {
+const askAssistant = async (asst, aMessage, fOptions = {}) => {
   const dOptions = { log: true };
   const options = { ...dOptions, ...fOptions };
-  const msg = await createMessage(
-    that.messages,
-    that.thread,
-    aMessage,
-    options.log
-  );
-  const run = await runAssistant(that.assistant, that.thread);
-  const output = await runActions(run, msg, that.tools, options);
+  const msg = await createMessage(asst, aMessage, options.log);
+  const run = await runAssistant(asst);
+  const output = await runActions(asst, run, msg, options);
   return output;
 };
 
@@ -27,10 +22,10 @@ const deleteAssistant = async (name) => {
   }
 };
 
-const runAssistant = async (assistant, thread) => {
+const runAssistant = async (asst) => {
   debug("ℹ️  Running...");
-  const run = await openai.beta.threads.runs.create(thread.id, {
-    assistant_id: assistant.id,
+  const run = await openai.beta.threads.runs.create(asst.thread.id, {
+    assistant_id: asst.assistant.id,
   });
   const waitRun = await waitForRun(run);
   return waitRun;

@@ -1,6 +1,7 @@
 import fs from "fs";
 import { openai } from "./openai.js";
 import { debug } from "./helpers.js";
+import { fileTypeFromBuffer } from "file-type";
 
 const reCreateFile = async (fileBaseName, knowledgeFormat) => {
   const fileObjectsPage = await openai.files.list();
@@ -24,8 +25,18 @@ const downloadFile = async (fileID, fileName) => {
   const file = await openai.files.retrieve(fileID);
   debug(`🗂️ ${JSON.stringify(file)}`);
   const response = await openai.files.content(fileID);
-  const writeStream = fs.createWriteStream(`./files/${fileName}`);
-  response.body.pipe(writeStream);
+  const chunks = [];
+  for await (const chunk of response.body) {
+    chunks.push(chunk);
+  }
+  const data = Buffer.concat(chunks);
+  const detectedType = await fileTypeFromBuffer(data);
+  let fnWithFallback = fileName || file.filename;
+  if (detectedType?.ext) {
+    const nameWithoutExt = fnWithFallback.replace(/\.[^/.]+$/, "");
+    fnWithFallback = `${nameWithoutExt}.${detectedType.ext}`;
+  }
+  fs.writeFileSync(`./files/${fnWithFallback}`, data);
 };
 
 export { reCreateFile, downloadFile };

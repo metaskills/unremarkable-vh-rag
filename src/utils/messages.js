@@ -2,17 +2,17 @@ import { openai } from "./openai.js";
 import { ai, debug } from "./helpers.js";
 import { downloadFile } from "./files.js";
 
-const createMessage = async (collection, thread, message, log = true) => {
+const createMessage = async (asst, message, log = true) => {
   const content = messageContent(message);
   if (log) {
     console.log(`💬 ${content}`);
   }
-  const msg = await openai.beta.threads.messages.create(thread.id, {
+  const msg = await openai.beta.threads.messages.create(asst.thread.id, {
     role: "user",
     content: content,
   });
   debug("💌 " + JSON.stringify(msg));
-  collection.unshift(msg);
+  asst.messages.unshift(msg);
   return msg;
 };
 
@@ -36,7 +36,10 @@ const messagesContent = async (thread, options = {}) => {
 
 const readMessages = async (thread, options = {}) => {
   const threadId = typeof thread === "string" ? thread : thread.id;
-  const messages = await openai.beta.threads.messages.list(threadId);
+  const messages = await openai.beta.threads.messages.list(threadId, {
+    // A) Use assistant messages state? b) Moot with streaming responses?
+    limit: 1,
+  });
   for (const message of messages.data) {
     if (message.role === "assistant") {
       // Assistant Text.
@@ -45,19 +48,9 @@ const readMessages = async (thread, options = {}) => {
         ai(message, options);
       }
       // Assistant Files.
-      if (message.content.some((c) => /file/.test(c.type))) {
-        for (const content of message.content.filter(
-          (c) => c.type === "text" && c.text.annotations
-        )) {
-          for (const annotation of content.text.annotations) {
-            if (annotation.type === "file_path") {
-              const fileID = annotation.file_path.file_id;
-              const filePath = annotation.text;
-              const fileName = filePath.split("/").pop();
-              await downloadFile(fileID, fileName);
-            }
-          }
-        }
+      if (message.content[0].type === "image_file") {
+        const fileID = message.content[0].image_file.file_id;
+        await downloadFile(fileID);
       }
     }
   }
