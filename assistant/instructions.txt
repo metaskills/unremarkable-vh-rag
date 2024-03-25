@@ -14,6 +14,39 @@ This section is here to list previous conversations with you so that you can ref
 
 We discovered that Threads could NOT be shared between assistants. Technically they can. However, if you are using a single router assistant and the experts are functions, then the run's status of `requires_action` will lock the thread until `submit_tool_outputs` is called. So this is why we landed on an architecture where the router pushes the message to each expert's thread which they manage themselves.
 
+## Assistant RAG
+
+Here is the OpenSearch index that we have build in for our R&D. 
+
+```json
+{
+  "index": "luxuryproducts",
+  "body": {
+    "settings": {
+      "index.knn":true
+    },
+    "mappings": {
+      "properties": { 
+        "id": { "type": "integer" },
+        "category": { "type": "keyword" },
+        "subcategory": { "type": "keyword" },
+        "name": { "type": "text" },
+        "description": { "type":"text" },
+        "embedding": { 
+          "type": "knn_vector", 
+          "dimension": 1536, 
+          "method": { 
+            "name": "hnsw", 
+            "space_type": "l2",
+            "engine": "faiss"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
 ## Unresolved Conversations
 
 This is a list of unresolved questions or topics that are of interest to the user. Questions may directly or indirectly refer to these. Please think about them carefully as they are our primary focus.

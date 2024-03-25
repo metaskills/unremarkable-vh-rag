@@ -1,7 +1,6 @@
 import { openai } from "./utils/openai.js";
 import { ai, debug } from "./utils/helpers.js";
 import { deleteAssistant, runAssistant } from "./utils/assistants.js";
-import { createMessage, readMessages } from "./utils/messages.js";
 import { reCreateFile } from "./utils/files.js";
 
 // Setup
@@ -42,7 +41,6 @@ const countMsg = await createMessage(
 );
 
 await runAssistant(LuxuryAssistant, LuxuryThread);
-await readMessages(LuxuryThread);
 
 // Category Analysis
 
@@ -53,7 +51,6 @@ const diagramQuery = await createMessage(
 );
 
 await runAssistant(LuxuryAssistant, LuxuryThread);
-await readMessages(LuxuryThread);
 
 // Faceted Semantic Search
 
@@ -64,4 +61,3 @@ const productSearch = await createMessage(
 );
 
 await runAssistant(LuxuryAssistant, LuxuryThread);
-await readMessages(LuxuryThread);

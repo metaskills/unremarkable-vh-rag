@@ -2,7 +2,7 @@ import { openai } from "../src/utils/openai.js";
 import { debug } from "../src/utils/helpers.js";
 import { createMessage } from "../src/utils/messages.js";
 import { deleteAssistant, runAssistant } from "../src/utils/assistants.js";
-import { runActions } from "./utils/tools-multi.js";
+import { runActions } from "../src/utils/tools.js";
 
 class QueryBuilderTool {
   constructor() {

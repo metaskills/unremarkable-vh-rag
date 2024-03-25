@@ -1,63 +1,83 @@
 import { openai } from "./utils/openai.js";
-import { ai, debug } from "./utils/helpers.js";
-import { deleteAssistant, runAssistant } from "./utils/assistants.js";
-import { createMessage, readMessages } from "./utils/messages.js";
-import { runActions } from "./utils/tools.js";
+import { debug } from "./utils/helpers.js";
+import { askAssistant, deleteAssistant } from "./utils/assistants.js";
+import { ProductsTool } from "./tools/products.js";
 
-// Setup
+class LuxuaryApparelAssistant {
+  constructor() {
+    this.model = "gpt-4-0125-preview";
+    this.agentName = "Luxury Apparel";
+    this.messages = [];
+    this.tools = {};
+  }
 
-const LuxuryMessages = [];
-const LuxuryThread = await openai.beta.threads.create();
+  async init() {
+    this.productsTool = new ProductsTool();
+    await this.productsTool.init();
+    await deleteAssistant(this.agentName);
+    this.assistant = await this.createAssistant();
+    this.thread = await openai.beta.threads.create();
+    this.tools[this.productsTool.toolName] = this.productsTool;
+  }
 
-// Assistant
+  async ask(aMessage) {
+    return await askAssistant(this, aMessage);
+  }
 
-await deleteAssistant("Luxury Apparel (RAG)");
+  // Private
 
-debug("ℹ️  Creating (RAG) assistant...");
-const LuxuryAssistant = await openai.beta.assistants.create({
-  name: "Luxury Apparel (RAG)",
-  description: "Search and/or analyze the luxury apparel data.",
-  instructions: `You can search and analyze the luxury apparel data.`,
-  tools: [
-    {
-      type: "function",
-      function: {
-        name: "main.products",
-        description:
-          "Search for luxury apparel items using semantic search with OpenSearch and optionally perform data analysis on aggregate or large file results with code interpreter.",
-        parameters: {
-          type: "object",
-          properties: {
-            perform: { type: "boolean", description: "Perform the search" },
+  async createAssistant() {
+    const assistant = await openai.beta.assistants.create({
+      name: this.agentName,
+      description: "Luxury Apparel virtual assistant.",
+      instructions: `
+Call the various tools in response to a user's messages.
+
+Follow these rules:
+
+1. Do not mention download links in the response. 
+2. Assume generated images are shown to the user.
+      `.trim(),
+      model: this.model,
+      tools: [
+        {
+          type: "function",
+          function: {
+            name: this.productsTool.toolName,
+            description:
+              "Can search and analyze the Luxury Apparel product data.",
+            parameters: {
+              type: "object",
+              properties: { message: { type: "string" } },
+              required: ["message"],
+            },
           },
-          required: ["perform"],
         },
-      },
-    },
-  ],
-  model: "gpt-4-0125-preview",
-});
+      ],
+    });
+    debug(`💁‍♂️ Created ${this.agentName} assistant ${assistant.id}...`);
+    return assistant;
+  }
+}
+
+const assistant = new LuxuaryApparelAssistant();
+await assistant.init();
 
 // Count Products
 
-// const countMsg = await createMessage(
-//   LuxuryMessages,
-//   LuxuryThread,
-//   "How many products do you have?"
-// );
-
-// const countRun = await runAssistant(LuxuryAssistant, LuxuryThread);
-// await runActions(countRun, countMsg);
-// await readMessages(LuxuryThread);
+// await assistant.ask("How many products do you have?");
 
 // Category Analysis
 
-const diagramQuery = await createMessage(
-  LuxuryMessages,
-  LuxuryThread,
-  "Show me a bar chart image with totals of each category."
+// await assistant.ask("Show me a bar chart image with totals of each category.");
+
+// Faceted Semantic Search
+
+await assistant.ask(
+  "Find men's accessories for a sophisticated comic book enthusiast."
 );
 
-const analyzeRun = await runAssistant(LuxuryAssistant, LuxuryThread);
-await runActions(analyzeRun, diagramQuery);
-await readMessages(LuxuryThread);
+// Debug Messages
+
+debug(`Ⓜ️  ${JSON.stringify(assistant.messages)}`);
+debug(`Ⓜ️  ${JSON.stringify(assistant.productsTool.messages)}`);

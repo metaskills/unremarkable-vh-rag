@@ -4,7 +4,6 @@
 * Mixing Vertical Horizontal RAG Architectures
 * Faceted Search, Semantic Retrieval, & Data Analysis
 
-
 ## Setup
 
 This project leverages [Dev Containers](https://containers.dev/) meaning you can open it in any supporting IDE and get started right away. This includes using [VS Code with Dev Containers](https://www.youtube.com/watch?v=b1RavPr_878) which is the recommended approach.
@@ -44,3 +43,69 @@ To access the OpenSearch Dashboards hosted in the dev container, use the followi
 ```
 http://localhost:5601
 ```
+
+## Luxury Apparel Data
+
+The data used for this demonstration is from Kaggle.
+
+https://www.kaggle.com/datasets/chitwanmanchanda/luxury-apparel-data
+
+For chat QnA expiermentation, here are the categories and subcategories used in the dataset.
+
+### Categories
+
+* Accessories
+* Activewear
+* Jackets/Coats
+* Jewelry
+* Pants
+* Shirts
+* Shoes
+* Suits
+* Sweaters
+* Underwear and Nightwear
+
+### Subcategories
+
+* Active Pants
+* Bags
+* Belts
+* Boots
+* Boxers & Briefs
+* Cardigans
+* Chinos
+* Coats
+* Cufflinks
+* Denim
+* Derbys
+* Eyewear
+* Gloves
+* Hats
+* Jackets
+* Jewelry
+* Loafers
+* Loungewear
+* Overshirts
+* Oxfords
+* Pants
+* Pins and Clips
+* Pocket Squares
+* Polos
+* Robes
+* Sandals
+* Scarves
+* Shirts
+* Shorts
+* Slides/Slipper
+* Sneakers
+* Socks
+* Suits
+* Sweaters
+* Sweatshirts/Hoodies
+* T-Shirts
+* Tech Accessories
+* Ties
+* Tuxedos
+* Vests
+* Wallets
+* Watches

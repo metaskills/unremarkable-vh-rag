@@ -25,16 +25,16 @@ const messageContent = (msg) => {
   return textContents[0].text.value;
 };
 
-const messagesContent = async (thread) => {
+const messagesContent = async (thread, options = {}) => {
   const content = [];
-  const messages = await readMessages(thread);
+  const messages = await readMessages(thread, options);
   for (const message of messages.data) {
     content.push(messageContent(message));
   }
   return content[0].trim();
 };
 
-const readMessages = async (thread) => {
+const readMessages = async (thread, options = {}) => {
   const threadId = typeof thread === "string" ? thread : thread.id;
   const messages = await openai.beta.threads.messages.list(threadId);
   for (const message of messages.data) {
@@ -42,7 +42,7 @@ const readMessages = async (thread) => {
       // Assistant Text.
       for (const content of message.content.filter((c) => c.type === "text")) {
         const message = content.text.value;
-        ai(message);
+        ai(message, options);
       }
       // Assistant Files.
       if (message.content.some((c) => /file/.test(c.type))) {
@@ -64,4 +64,4 @@ const readMessages = async (thread) => {
   return messages;
 };
 
-export { createMessage, messageContent, messagesContent, readMessages };
+export { createMessage, messageContent, messagesContent };

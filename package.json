@@ -11,10 +11,8 @@
     "demo:rag": "node src/demo-rag.js",
     "demo:rag:debug": "DEBUG=1 node src/demo-rag.js",
     "assistant:create": "node assistant/create.js",
-    "exp:thread-lock": "node exp/thread-lock.js",
-    "exp:thread-lock:debug": "DEBUG=1 node exp/thread-lock.js",
-    "exp:basic-panel": "node exp/basic-panel.js",
-    "exp:basic-panel:debug": "DEBUG=1 node exp/basic-panel.js",
+    "exp:hello-world": "node exp/hello-world.js",
+    "exp:hello-world:debug": "DEBUG=1 node exp/hello-world.js",
     "exp:multi-tool": "node exp/multi-tool.js",
     "exp:multi-tool:debug": "DEBUG=1 node exp/multi-tool.js"
   },

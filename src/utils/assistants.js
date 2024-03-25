@@ -1,5 +1,21 @@
 import { openai } from "./openai.js";
 import { sleep, isDebug, debug } from "./helpers.js";
+import { createMessage } from "./messages.js";
+import { runActions } from "./tools.js";
+
+const askAssistant = async (that, aMessage, fOptions = {}) => {
+  const dOptions = { log: true };
+  const options = { ...dOptions, ...fOptions };
+  const msg = await createMessage(
+    that.messages,
+    that.thread,
+    aMessage,
+    options.log
+  );
+  const run = await runAssistant(that.assistant, that.thread);
+  const output = await runActions(run, msg, that.tools, options);
+  return output;
+};
 
 const deleteAssistant = async (name) => {
   const assistant = (
@@ -47,4 +63,4 @@ const waitForRun = async (run) => {
   return waitRun;
 };
 
-export { deleteAssistant, runAssistant, waitForRun };
+export { askAssistant, deleteAssistant, runAssistant, waitForRun };

@@ -1,12 +1,14 @@
-function ai(message) {
-  console.log(`🤖 ${message}`);
-}
+const isDebug = process.env.DEBUG;
+
+const ai = (message, options = {}) => {
+  if ((options.log && !isDebug) || isDebug) {
+    console.log(`🤖 ${message}`);
+  }
+};
 
 const sleep = (ms) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
-
-const isDebug = process.env.DEBUG;
 
 const debug = (message) => {
   if (isDebug) {

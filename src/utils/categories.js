@@ -41,7 +41,7 @@ async function uniqueKeywords(fieldName) {
   return [...new Set(results)].sort();
 }
 
-const CATEGORIES = await uniqueKeywords("category");
-const SUBCATEGORIES = await uniqueKeywords("subcategory");
+const Categories = await uniqueKeywords("category");
+const SubCategories = await uniqueKeywords("subcategory");
 
-export { CATEGORIES, SUBCATEGORIES };
+export { Categories, SubCategories };
