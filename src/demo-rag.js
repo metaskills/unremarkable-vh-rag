@@ -69,7 +69,7 @@ await assistant.ask("How many products do you have?");
 
 // Category Analysis
 
-// await assistant.ask("Show me a bar chart image with totals of each category.");
+await assistant.ask("Show me a bar chart image with totals of each category.");
 
 // Faceted Semantic Search
 

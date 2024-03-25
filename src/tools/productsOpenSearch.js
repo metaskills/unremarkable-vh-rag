@@ -142,6 +142,33 @@ Answer:
 }
 \`\`\`
 
+
+Example: #3
+Question: Show me a bar chart image with totals of each category.
+Reasoning: Use of size set to 0. Search type is "aggregate". Results will be used by the code_interpreter tool to create the image.
+Answer:
+\`\`\`json
+{
+  "search_type": "aggregate",
+  "search_query": {
+    "index": "luxuryproducts",
+    "body": {
+      "size": 0,
+      "query": {
+        "match_all": {}
+      },
+      "aggs": {
+        "total_by_category": {
+          "terms": {
+            "field": "category"
+          }
+        }
+      }
+    }
+  }
+}
+\`\`\`
+
 ## Rules
 
 1. The "search_query" must work with OpenSearch 2.9 and above.
