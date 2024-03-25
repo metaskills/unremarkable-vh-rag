@@ -3,7 +3,6 @@ import { debug } from "../utils/helpers.js";
 import { askAssistant, deleteAssistant } from "../utils/assistants.js";
 import { opensearch } from "../utils/opensearch.js";
 import { createEmbedding } from "../utils/embedding.js";
-import { Categories, SubCategories } from "../utils/categories.js";
 
 const INSTRUCTIONS = `
 # Luxury Apparel OpenSearch Query Generator
@@ -41,32 +40,22 @@ Your job is to translate a user's messages into an OpenSearch query that can be 
 }
 \`\`\`
 
-## Luxury Apparel Category List
-
-Some searches may want to use the "category" as a condition. Here is a list for your reference.
-
-${Categories.map((c) => `* ${c}`).join(`\n`)}
-
-## Luxury Apparel Subcategory List
-
-Some searches may want to use the "subcategory" as a condition. Here is a list for your reference.
-
-${SubCategories.map((sc) => `* ${sc}`).join(`\n`)}
-
 ## kNN Vector Queries
 
-Some quries will require using OpenSearch's kNN vector search capability. When doing so, the "embedding" field returned must be a "vector" with a string value that will be convereted into a vector embedding (array of floats) prior to being sent to the OpenSearch search interface. For example, if a user was searching for products for a "sophisticated comic book enthusiast", the knn query snippet would look like the following: 
+Some quries will require using OpenSearch's kNN vector search capability. When doing so, the "embedding" field returned must be a "vector" with a string value that will be convereted into a vector embedding (array of floats) prior to being sent to the OpenSearch search interface.
 
 \`\`\`json
 "query": {
   "knn": {
     "embedding": {
-      "vector": "sophisticated comic book enthusiast",
-      "k": 20
+      "vector": "men's accessories sophisticated comic book enthusiast",
+      "k": 3
     }
   }
 }
 \`\`\`
+
+For vector embedding's text was a concetenated string of the name, description, category, and subcategory fields. Consider this when generating amazing search phrases for the "vector" property.
 
 ## Response Format
 
@@ -91,14 +80,6 @@ Here is a JSON schema validation for the response format that you must follow.
   "additionalProperties": false
 }
 \`\`\`
-
-## Rules
-
-1. The "search_query" must work with OpenSearch 2.9 and above.
-2. The "aggregate" query type must have "size" set to 0.
-3. The "items" query type must have "size" set to 3 unless otherwise specified. Max 10.
-4. The "items" query must only return the "_id" field.
-5. Return JSON only, no fenced code blocks.
 
 ## Examples
 
@@ -132,7 +113,7 @@ Answer:
 
 Example: #2
 Question: Find men's accessories for a sophisticated comic book enthusiast.
-Reasoning: Default size of 3 and knn of 3. Prefilter based on category. Only return _id for items query types.
+Reasoning: Default size of 3 and knn of 3. Only return _id for items query types.
 Answer:
 \`\`\`json
 {
@@ -143,18 +124,11 @@ Answer:
       "size": 3,
       "query": {
         "bool": {
-          "filter": [
-            {
-              "term": {
-                "category": "Accessories"
-              }
-            }
-          ],
           "must": [
             {
               "knn": {
                 "embedding": {
-                  "vector": "sophisticated male comic book enthusiast",
+                  "vector": "men's accessories sophisticated comic book enthusiast",
                   "k": 3
                 }
               }
@@ -167,6 +141,15 @@ Answer:
   }
 }
 \`\`\`
+
+## Rules
+
+1. The "search_query" must work with OpenSearch 2.9 and above.
+2. The "aggregate" query type must have "size" set to 0.
+3. The "items" query type must have "size" set to 3 unless otherwise specified. Max 10.
+4. The "items" query must only return the "_id" field.
+5. Return JSON only, no fenced code blocks.
+6. For kNN Vector queries, generate an amazing search phrase using the user's message(s).
 `.trim();
 
 class ProductsOpenSearchTool {

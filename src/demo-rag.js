@@ -65,7 +65,7 @@ await assistant.init();
 
 // Count Products
 
-// await assistant.ask("How many products do you have?");
+await assistant.ask("How many products do you have?");
 
 // Category Analysis
 
