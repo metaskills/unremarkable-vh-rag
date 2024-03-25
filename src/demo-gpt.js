@@ -1,63 +1,69 @@
 import { openai } from "./utils/openai.js";
-import { ai, debug } from "./utils/helpers.js";
-import { deleteAssistant, runAssistant } from "./utils/assistants.js";
+import { debug } from "./utils/helpers.js";
+import { askAssistant, deleteAssistant } from "./utils/assistants.js";
 import { reCreateFile } from "./utils/files.js";
 
-// Setup
+class LuxuaryApparelAssistant {
+  constructor() {
+    this.model = "gpt-4-0125-preview";
+    this.agentName = "Luxury Apparel (GPT)";
+    this.messages = [];
+    this.tools = {};
+  }
 
-const LuxuryMessages = [];
-const LuxuryThread = await openai.beta.threads.create();
+  async init() {
+    await deleteAssistant(this.agentName);
+    this.assistant = await this.createAssistant();
+    this.thread = await openai.beta.threads.create();
+  }
 
-const knowledgeFormat = process.env.KNOWLEDGE_FORMAT || "csv";
-let knowledgeFormatName = knowledgeFormat.toUpperCase();
-if (knowledgeFormat === "md") {
-  knowledgeFormatName = "Markdown";
+  async ask(aMessage) {
+    return await askAssistant(this, aMessage);
+  }
+
+  // Private
+
+  async createAssistant() {
+    const luxuryFile = await reCreateFile(
+      "Luxury_Products_Apparel_Data",
+      this.knowledge.format
+    );
+    const assistant = await openai.beta.assistants.create({
+      name: this.agentName,
+      description: "Search or analyze the luxury apparel data.",
+      instructions: `You can search and analyze the luxury apparel ${this.knowledge.name} data.`,
+      tools: [{ type: "code_interpreter" }],
+      model: "gpt-4-0125-preview",
+      file_ids: [luxuryFile.id],
+    });
+    debug(`💁‍♂️ Created ${this.agentName} assistant ${assistant.id}...`);
+    return assistant;
+  }
+
+  get knowledge() {
+    const format = process.env.KNOWLEDGE_FORMAT || "csv";
+    let name = format.toUpperCase();
+    if (format === "md") {
+      name = "Markdown";
+    }
+    return { format, name };
+  }
 }
 
-// Assistant
-
-await deleteAssistant("Luxury Apparel (GPT)");
-const luxuryFile = await reCreateFile(
-  "Luxury_Products_Apparel_Data",
-  knowledgeFormat
-);
-
-debug("ℹ️  Creating (GPT) assistant...");
-const LuxuryAssistant = await openai.beta.assistants.create({
-  name: "Luxury Apparel (GPT)",
-  description: "Search or analyze the luxury apparel data.",
-  instructions: `You can search and analyze the luxury apparel ${knowledgeFormatName} data.`,
-  tools: [{ type: "code_interpreter" }],
-  model: "gpt-4-0125-preview",
-  file_ids: [luxuryFile.id],
-});
+const assistant = new LuxuaryApparelAssistant();
+await assistant.init();
 
 // Count Products
+// Count Products
 
-const countMsg = await createMessage(
-  LuxuryMessages,
-  LuxuryThread,
-  "How many products do you have?"
-);
-
-await runAssistant(LuxuryAssistant, LuxuryThread);
+await assistant.ask("How many products do you have?");
 
 // Category Analysis
 
-const diagramQuery = await createMessage(
-  LuxuryMessages,
-  LuxuryThread,
-  "Show me a bar chart image with totals of each category."
-);
-
-await runAssistant(LuxuryAssistant, LuxuryThread);
+await assistant.ask("Show me a bar chart image with totals of each category.");
 
 // Faceted Semantic Search
 
-const productSearch = await createMessage(
-  LuxuryMessages,
-  LuxuryThread,
+await assistant.ask(
   "Find men's accessories for a sophisticated comic book enthusiast."
 );
-
-await runAssistant(LuxuryAssistant, LuxuryThread);
