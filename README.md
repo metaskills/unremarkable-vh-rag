@@ -63,3 +63,7 @@ Here are the categories in the dataset. Use these to test your own pre-filtered 
 * Suits
 * Sweaters
 * Underwear and Nightwear
+
+## Notes
+
+Consider 1st tier pass-thru tool data. For example, if `products` responds with `Yes.` is there any guarantee that the orchestrator should echo that message or answer in it's own words? **Should products return raw tool data only or LLM response to said data?**
