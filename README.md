@@ -1,5 +1,6 @@
+# unRemarkable.ai GPT vs. Assistants Demo
 
-# Unremarkable.ai Demo
+Exploring a panel of experts assistants model.
 
 * Mixing Vertical Horizontal RAG Architectures
 * Faceted Search, Semantic Retrieval, & Data Analysis
@@ -24,17 +25,17 @@ npm run db:index
 
 ## Demo Commands
 
-This will run the various OpenAI Assistants API demos. If any image files like product category charts are created, they will be saved to the `./files` directory. 
+This will run the various OpenAI Assistants API demos. The `demo:gpt` command will mimic a Custom GPT's knowledge retrieval. The `demo:rag` will demonstrate the same Q&A sequence with a panel of experts using the Assistants API.
 
 ```bash
 npm run demo:gpt
 npm run demo:rag
 ```
 
-You can use the following environment variables to customize the demo:gpt command.
+Images created by any run step such as charts created by code interpreter will be saved to the `./files` directory. These are git ignored. You can use the following environment variables to customize the scripts' behaviors.
 
 - `DEBUG` Set to any value to enable debug 🪲 logging.
-- `KNOWLEDGE_FORMAT` Set to process a specific knowledge format. Options: `csv`, `json`, `md`. Defaults to CSV.
+- `KNOWLEDGE_FORMAT` Set to process a specific knowledge format. Options: `csv`, `json`, `md`. Defaults to CSV. Only used in the `demo:gpt` script.
 
 ## Access OpenSearch
 

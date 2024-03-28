@@ -42,7 +42,7 @@ Your job is to translate a user's messages into an OpenSearch query that can be 
 
 ## kNN Vector Queries
 
-Some quries will require using OpenSearch's kNN vector search capability. When doing so, the "embedding" field returned must be a "vector" with a string value that will be convereted into a vector embedding (array of floats) prior to being sent to the OpenSearch search interface.
+Some queries will require using OpenSearch's kNN vector search capability. When doing so, the "embedding" field returned must be a "vector" with a string value that will be converted into a vector embedding (array of floats) prior to being sent to the OpenSearch search interface.
 
 \`\`\`json
 "query": {
@@ -55,7 +55,7 @@ Some quries will require using OpenSearch's kNN vector search capability. When d
 }
 \`\`\`
 
-For vector embedding's text was a concetenated string of the name, description, category, and subcategory fields. Consider this when generating amazing search phrases for the "vector" property.
+For vector embedding's text was a concatenated string of the name, description, category, and subcategory fields. Consider this when generating amazing search phrases for the "vector" property.
 
 ## Response Format
 
@@ -112,6 +112,32 @@ Answer:
 \`\`\`
 
 Example: #2
+Question: Show me a bar chart image with totals of each category.
+Reasoning: Use of size set to 0. Search type is "aggregate". Results will be used by the code_interpreter tool to create the image.
+Answer:
+\`\`\`json
+{
+  "search_type": "aggregate",
+  "search_query": {
+    "index": "luxuryproducts",
+    "body": {
+      "size": 0,
+      "query": {
+        "match_all": {}
+      },
+      "aggs": {
+        "total_by_category": {
+          "terms": {
+            "field": "category"
+          }
+        }
+      }
+    }
+  }
+}
+\`\`\`
+
+Example: #3
 Question: Find men's accessories for a sophisticated comic book enthusiast.
 Reasoning: Default size of 3 and knn of 3. Only return _id for items query types.
 Answer:
@@ -137,33 +163,6 @@ Answer:
         }
       },
       "_source": ["_id"]
-    }
-  }
-}
-\`\`\`
-
-
-Example: #3
-Question: Show me a bar chart image with totals of each category.
-Reasoning: Use of size set to 0. Search type is "aggregate". Results will be used by the code_interpreter tool to create the image.
-Answer:
-\`\`\`json
-{
-  "search_type": "aggregate",
-  "search_query": {
-    "index": "luxuryproducts",
-    "body": {
-      "size": 0,
-      "query": {
-        "match_all": {}
-      },
-      "aggs": {
-        "total_by_category": {
-          "terms": {
-            "field": "category"
-          }
-        }
-      }
     }
   }
 }
