@@ -3,7 +3,7 @@ import { debug } from "../../src/utils/helpers.js";
 import { messageContent, messagesContent } from "../../src/utils/messages.js";
 import { waitForRun } from "../../src/utils/assistants.js";
 
-const runActions = async (asst, aRun, aMessage, options = {}) => {
+const runActions = async (asst, aRun, options = {}) => {
   if (
     aRun.status === "requires_action" &&
     aRun.required_action.type === "submit_tool_outputs"
@@ -51,12 +51,7 @@ const submitToolOutputs = async (asst, run, toolOutputs, options = {}) => {
     tool_outputs: toolOutputs,
   });
   const submitRun = await waitForRun(run);
-  const output = await runActions(
-    asst,
-    submitRun,
-    toolOutputs[0].output,
-    options
-  );
+  const output = await runActions(asst, submitRun, options);
   return output;
 };
 

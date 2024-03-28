@@ -8,7 +8,7 @@ const askAssistant = async (asst, aMessage, fOptions = {}) => {
   const options = { ...dOptions, ...fOptions };
   const msg = await createMessage(asst, aMessage, options.log);
   const run = await runAssistant(asst);
-  const output = await runActions(asst, run, msg, options);
+  const output = await runActions(asst, run, options);
   return output;
 };
 
