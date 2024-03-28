@@ -23,7 +23,7 @@ const queue = new PQueue({ concurrency: 30, autoStart: true });
 
 const indexProduct = async (product) => {
   const embedding = await createEmbedding(
-    `${product.ProductName} ${product.ProductDescription} ${product.Category}`
+    `${product.ProductName} ${product.ProductDescription}`
   );
   await opensearch.index({
     index: "luxuryproducts",

@@ -43,20 +43,18 @@ Your job is to translate a user's messages into an OpenSearch query that can be 
 
 ## kNN Vector Queries
 
-Some queries will require using OpenSearch's kNN vector search capability. When doing so, the "embedding" field returned must be a "vector" with a string value that will be converted into a vector embedding (array of floats) prior to being sent to the OpenSearch search interface.
+Some queries will require using OpenSearch's kNN vector search capability. When doing so, the "vector" property will be a string value that will be replaced by a real vector embedding (array of floats) prior to being sent to the OpenSearch search interface. For example:
 
 \`\`\`json
-"query": {
-  "knn": {
-    "embedding": {
-      "vector": "men's accessories sophisticated comic book enthusiast",
-      "k": 3
-    }
+"knn": {
+  "embedding": {
+    "vector": "men sophisticated comic book enthusiast",
+    "k": 3
   }
 }
 \`\`\`
 
-For vector embedding's text was a concatenated string of the name, description, category, and subcategory fields. Consider this when generating amazing search phrases for the "vector" property.
+In this case, the "men sophisticated comic book enthusiast" pharse will be later replaced. Our vector embedding's text is a concatenated string of the name & description fields. Consider this when generating amazing search phrases for the "vector" property.
 
 ### Categories
 
@@ -146,23 +144,20 @@ Answer:
 
 Example: #3
 Question: Find men's accessories for a sophisticated comic book enthusiast.
-Reasoning: Default size of 3 and knn of 3. Only return _id for items query types.
+Reasoning: Default size of 3 and knn of 3. Only return _id for items query types. Uses approximate k-NN search method. Applies category pre-filter.
 Answer:
 \`\`\`json
 {
   "search_type": "items",
   "search_query": {
     "index": "luxuryproducts",
+    "_source": ["_id"],
     "body": {
       "size": 3,
       "query": {
         "bool": {
           "filter": [
-            {
-              "term": {
-                "category": "Accessories"
-              }
-            }
+            { "term": { "category": "Accessories" }}
           ],
           "must": [
             {
@@ -175,8 +170,7 @@ Answer:
             }
           ]
         }
-      },
-      "_source": ["_id"]
+      }
     }
   }
 }
@@ -184,12 +178,12 @@ Answer:
 
 ## Rules
 
-1. The "search_query" must work with OpenSearch 2.9 and above.
+1. The "search_query" must work with OpenSearch 2.11 and above.
 2. The "aggregate" query type must have "size" set to 0.
 3. The "items" query type must have "size" set to 3 unless otherwise specified. Max 10.
 4. The "items" query must only return the "_id" field.
-5. Return JSON only, no fenced code blocks.
-6. For kNN Vector queries, generate an amazing search phrase using the user's message(s).
+5. For kNN vector queries, generate an amazing search phrase using the user's message(s).
+7. Return JSON only, no fenced code blocks.
 `.trim();
 
 class ProductsOpenSearchTool {
@@ -246,9 +240,23 @@ class ProductsOpenSearchTool {
   async replaceKnnEmbeddingVector(obj) {
     if (obj !== null && typeof obj === "object") {
       for (const key in obj) {
-        if (key === "knn" && obj[key].embedding && obj[key].embedding.vector) {
+        if (
+          // Approximate k-NN
+          key === "knn" &&
+          obj[key].embedding &&
+          obj[key].embedding.vector
+        ) {
           const vector = await createEmbedding(obj[key].embedding.vector);
           obj[key].embedding.vector = vector;
+        } else if (
+          // Script Score k-NN
+          key === "script" &&
+          obj[key].source === "knn_score" &&
+          obj[key].params.query_value
+        ) {
+          console.log("\n\n", obj[key]);
+          const vector = await createEmbedding(obj[key].params.query_value);
+          obj[key].params.query_value = vector;
         } else {
           await this.replaceKnnEmbeddingVector(obj[key]);
         }

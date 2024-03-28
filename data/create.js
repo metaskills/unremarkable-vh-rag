@@ -26,7 +26,11 @@ await opensearch.indices.create({
           method: {
             name: "hnsw",
             space_type: "l2",
-            engine: "faiss",
+            engine: "nmslib",
+            parameters: {
+              ef_construction: 512,
+              m: 64,
+            },
           },
         },
       },
