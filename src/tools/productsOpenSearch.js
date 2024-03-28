@@ -61,6 +61,7 @@ class ProductsOpenSearchTool {
             },
           },
         },
+        pretty: false,
       });
       rValue = responseFull.body.hits.hits;
     }
