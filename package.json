@@ -15,7 +15,7 @@
     "exp:hello-world:debug": "DEBUG=1 node exp/hello-world.js"
   },
   "dependencies": {
-    "@opensearch-project/opensearch": "^2.5.0",
+    "@opensearch-project/opensearch": "^2.6.0",
     "dotenv-flow": "^3.2.0",
     "file-type": "^19.0.0",
     "openai": "^4.2.6",
