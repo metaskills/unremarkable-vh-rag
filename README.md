@@ -51,3 +51,15 @@ The data used for this demonstration is from Kaggle.
 
 https://www.kaggle.com/datasets/chitwanmanchanda/luxury-apparel-data
 
+Here are the categories in the dataset. Use these to test your own pre-filtered queries.
+
+* Accessories
+* Activewear
+* Jackets/Coats
+* Jewelry
+* Pants
+* Shirts
+* Shoes
+* Suits
+* Sweaters
+* Underwear and Nightwear

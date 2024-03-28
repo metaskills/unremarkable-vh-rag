@@ -3,6 +3,7 @@ import { debug } from "../utils/helpers.js";
 import { askAssistant, deleteAssistant } from "../utils/assistants.js";
 import { opensearch } from "../utils/opensearch.js";
 import { createEmbedding } from "../utils/embedding.js";
+import { Categories, SubCategories } from "../utils/categories.js";
 
 const INSTRUCTIONS = `
 # Luxury Apparel OpenSearch Query Generator
@@ -56,6 +57,12 @@ Some queries will require using OpenSearch's kNN vector search capability. When 
 \`\`\`
 
 For vector embedding's text was a concatenated string of the name, description, category, and subcategory fields. Consider this when generating amazing search phrases for the "vector" property.
+
+### Categories
+
+Some searches may want to use the "category" as a condition. Here is a list for your reference. These can be used as kNN pre-filters.
+
+${Categories.map((c) => `* ${c}`).join(`\n`)}
 
 ## Response Format
 
@@ -150,11 +157,18 @@ Answer:
       "size": 3,
       "query": {
         "bool": {
+          "filter": [
+            {
+              "term": {
+                "category": "Accessories"
+              }
+            }
+          ],
           "must": [
             {
               "knn": {
                 "embedding": {
-                  "vector": "men's accessories sophisticated comic book enthusiast",
+                  "vector": "men sophisticated comic book enthusiast",
                   "k": 3
                 }
               }

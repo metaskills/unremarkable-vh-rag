@@ -6,7 +6,7 @@ services:
     depends_on:
       opensearch: { condition: service_started }
   opensearch:
-    image: public.ecr.aws/opensearchproject/opensearch:2.9.0
+    image: public.ecr.aws/opensearchproject/opensearch:2.11.0
     environment:
       - cluster.name=opensearch-cluster
       - node.name=opensearch-node1
@@ -27,7 +27,7 @@ services:
     volumes:
       - opensearch-data:/usr/share/opensearch/data
   opensearch-dashboards:
-    image: opensearchproject/opensearch-dashboards:2.9.0
+    image: opensearchproject/opensearch-dashboards:2.11.0
     restart: unless-stopped
     ports:
       - 5601:5601
