@@ -29,7 +29,7 @@ const runActions = async (asst, aRun, options = {}) => {
             toolOutput.output = output;
             isToolOuputs = true;
           }
-          debug("🪵 " + JSON.stringify(toolOutput));
+          debug("🪵  " + JSON.stringify(toolOutput));
           toolOutputs.push(toolOutput);
         }
       }
@@ -38,10 +38,10 @@ const runActions = async (asst, aRun, options = {}) => {
       const output = await submitToolOutputs(asst, aRun, toolOutputs, options);
       return output;
     } else {
-      return await messagesContent(aRun.thread_id, options);
+      return await messagesContent(asst, options);
     }
   } else {
-    return await messagesContent(aRun.thread_id, options);
+    return await messagesContent(asst, options);
   }
 };
 
@@ -50,6 +50,11 @@ const submitToolOutputs = async (asst, run, toolOutputs, options = {}) => {
   await openai.beta.threads.runs.submitToolOutputs(run.thread_id, run.id, {
     tool_outputs: toolOutputs,
   });
+  if (asst.passToolOutputs) {
+    toolOutputs.forEach((to) => {
+      asst.toolOutputs.push(to.output);
+    });
+  }
   const submitRun = await waitForRun(run);
   const output = await runActions(asst, submitRun, options);
   return output;

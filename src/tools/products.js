@@ -8,6 +8,7 @@ class ProductsTool {
     this.model = "gpt-4-0125-preview";
     this.agentName = "Luxury Apparel (Products)";
     this.toolName = "products";
+    this.useToolOutputs = true;
     this.messages = [];
     this.tools = {};
   }

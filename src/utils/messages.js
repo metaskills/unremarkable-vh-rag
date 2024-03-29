@@ -25,18 +25,17 @@ const messageContent = (msg) => {
   return textContents[0].text.value;
 };
 
-const messagesContent = async (thread, options = {}) => {
+const messagesContent = async (asst, options = {}) => {
   const content = [];
-  const messages = await readMessages(thread, options);
+  const messages = await readMessages(asst, options);
   for (const message of messages.data) {
     content.push(messageContent(message));
   }
   return content[0].trim();
 };
 
-const readMessages = async (thread, options = {}) => {
-  const threadId = typeof thread === "string" ? thread : thread.id;
-  const messages = await openai.beta.threads.messages.list(threadId, {
+const readMessages = async (asst, options = {}) => {
+  const messages = await openai.beta.threads.messages.list(asst.thread.id, {
     // A) Use assistant messages state? b) Moot with streaming responses?
     limit: 1,
   });
@@ -48,9 +47,14 @@ const readMessages = async (thread, options = {}) => {
         ai(message, options);
       }
       // Assistant Files.
+      // TODO: Different file types?
+      // TODO: Alt tag?
+      // TODO: Pass message and file to orchestrator?
       if (message.content[0].type === "image_file") {
-        const fileID = message.content[0].image_file.file_id;
-        await downloadFile(fileID);
+        const imageFileID = message.content[0].image_file.file_id;
+        const imageFilePath = await downloadFile(imageFileID);
+        const imageMessage = `![Image](https://example.com${imageFilePath})`;
+        ai(imageMessage, options);
       }
     }
   }

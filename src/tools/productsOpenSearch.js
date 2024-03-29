@@ -1,19 +1,14 @@
 import fs from "fs";
-import url from "url";
-import path from "path";
 import ejs from "ejs";
 import { openai } from "../utils/openai.js";
-import { debug } from "../utils/helpers.js";
+import { debug, projectPath } from "../utils/helpers.js";
 import { askAssistant, deleteAssistant } from "../utils/assistants.js";
 import { opensearch } from "../utils/opensearch.js";
 import { createEmbedding } from "../utils/embedding.js";
 import { Categories } from "../utils/categories.js";
 
-const __filename = url.fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 const InstructionsTemplate = fs.readFileSync(
-  path.join(__dirname, "../inst/products.md"),
+  projectPath("src/inst/products.md"),
   "utf-8"
 );
 
@@ -26,6 +21,7 @@ class ProductsOpenSearchTool {
     this.model = "gpt-4-0125-preview";
     this.agentName = "Luxury Apparel (OpenSearch)";
     this.toolName = "products-opensearch";
+    this.passToolOutputs = true;
     this.messages = [];
   }
 
@@ -46,7 +42,6 @@ class ProductsOpenSearchTool {
   async opensearchQuery(args) {
     let rValue;
     let query = args.search_query;
-    // debug(`❓ ${JSON.stringify(query, null, 2)}`);
     query = await this.replaceKnnEmbeddingVector(query);
     const response = await opensearch.search(query);
     if (args.search_type === "aggregate") {

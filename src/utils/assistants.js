@@ -1,14 +1,18 @@
 import { openai } from "./openai.js";
-import { sleep, isDebug, debug } from "./helpers.js";
+import { sleep, isDebug, debug, formatOutputs } from "./helpers.js";
 import { createMessage } from "./messages.js";
 import { runActions } from "./tools.js";
 
 const askAssistant = async (asst, aMessage, fOptions = {}) => {
+  asst.toolOutputs = [];
   const dOptions = { log: true };
   const options = { ...dOptions, ...fOptions };
   await createMessage(asst, aMessage, options.log);
   const run = await runAssistant(asst);
   const output = await runActions(asst, run, options);
+  if (asst.toolOutputs.length > 0) {
+    return formatOutputs(asst.toolOutputs);
+  }
   return output;
 };
 
