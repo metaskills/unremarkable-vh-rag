@@ -18,6 +18,7 @@
   "dependencies": {
     "@opensearch-project/opensearch": "^2.6.0",
     "dotenv-flow": "^3.2.0",
+    "ejs": "^3.1.9",
     "file-type": "^19.0.0",
     "openai": "^4.2.6",
     "p-queue": "^7.4.1"

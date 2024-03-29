@@ -1,20 +1,25 @@
 import fs from "fs";
 import url from "url";
 import path from "path";
+import ejs from "ejs";
 import { openai } from "../utils/openai.js";
 import { debug } from "../utils/helpers.js";
 import { askAssistant, deleteAssistant } from "../utils/assistants.js";
 import { opensearch } from "../utils/opensearch.js";
 import { createEmbedding } from "../utils/embedding.js";
-import { Categories, SubCategories } from "../utils/categories.js";
+import { Categories } from "../utils/categories.js";
 
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const INSTRUCTIONS = fs.readFileSync(
+const InstructionsTemplate = fs.readFileSync(
   path.join(__dirname, "../inst/products.md"),
   "utf-8"
 );
+
+const INSTRUCTIONS = ejs.render(InstructionsTemplate, {
+  categories: Categories,
+});
 
 class ProductsOpenSearchTool {
   constructor() {

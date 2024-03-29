@@ -46,13 +46,13 @@ Some queries will require using OpenSearch's kNN vector search capability. When 
 }
 ```
 
-In this case, the "men sophisticated comic book enthusiast" pharse will be later replaced. Our vector embedding's text is a concatenated string of the name & description fields. Consider this when generating amazing search phrases for the "vector" property.
+In this case, the "men sophisticated comic book enthusiast" phrase will be later replaced. Our vector embedding's text is a concatenated string of the name & description fields. Consider this when generating amazing search phrases for the "vector" property.
 
 ### Categories
 
 Some searches may want to use the "category" as a condition. Here is a list for your reference. These can be used as kNN pre-filters.
 
-${Categories.map((c) => `* ${c}`).join(`\n`)}
+<%= categories.map((c) => `* ${c}`).join(`\n`); %>
 
 ## Response Format
 
