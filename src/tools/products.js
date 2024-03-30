@@ -40,7 +40,7 @@ Follow these rules:
 
 1. Always use your tools for each message.
 2. Do not mention download links in the response. 
-3. Assume generated images are shown to the user.
+3. Assume generated images will be shown to the user.
       `.trim(),
       tools: [
         {

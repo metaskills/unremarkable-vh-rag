@@ -26,12 +26,29 @@ const messageContent = (msg) => {
 };
 
 const messagesContent = async (asst, options = {}) => {
-  const content = [];
+  const mContent = [];
   const messages = await readMessages(asst, options);
   for (const message of messages.data) {
-    content.push(messageContent(message));
+    if (message.role === "assistant") {
+      // Assistant Text.
+      for (const content of message.content.filter((c) => c.type === "text")) {
+        const message = content.text.value;
+        mContent.push(message);
+        ai(message, options);
+      }
+      // Assistant Files.
+      // TODO: Different file types?
+      // TODO: Alt tag?
+      if (message.content[0].type === "image_file") {
+        const imageFileID = message.content[0].image_file.file_id;
+        const imageFilePath = await downloadFile(imageFileID);
+        const imageMessage = `![Image](https://example.com${imageFilePath})`;
+        mContent.push(imageMessage);
+        ai(imageMessage, options);
+      }
+    }
   }
-  return content[0].trim();
+  return mContent.join("\n\n");
 };
 
 const readMessages = async (asst, options = {}) => {
@@ -39,25 +56,6 @@ const readMessages = async (asst, options = {}) => {
     // A) Use assistant messages state? b) Moot with streaming responses?
     limit: 1,
   });
-  for (const message of messages.data) {
-    if (message.role === "assistant") {
-      // Assistant Text.
-      for (const content of message.content.filter((c) => c.type === "text")) {
-        const message = content.text.value;
-        ai(message, options);
-      }
-      // Assistant Files.
-      // TODO: Different file types?
-      // TODO: Alt tag?
-      // TODO: Pass message and file to orchestrator?
-      if (message.content[0].type === "image_file") {
-        const imageFileID = message.content[0].image_file.file_id;
-        const imageFilePath = await downloadFile(imageFileID);
-        const imageMessage = `![Image](https://example.com${imageFilePath})`;
-        ai(imageMessage, options);
-      }
-    }
-  }
   return messages;
 };
 

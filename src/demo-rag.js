@@ -36,7 +36,7 @@ Call the various tools in response to a user's messages.
 Follow these rules:
 
 1. Do not mention download links in the response. 
-2. Assume generated images are shown to the user.
+2. Always show markdown images to the user.
       `.trim(),
       model: this.model,
       tools: [

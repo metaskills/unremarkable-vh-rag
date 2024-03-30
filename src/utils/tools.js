@@ -14,7 +14,7 @@ const runActions = async (asst, aRun, options = {}) => {
     debug("🧰 " + JSON.stringify(toolCalls.map((tc) => tc.function.name)));
     if (typeof asst.tools === "object" && asst.tools !== null) {
       for (const toolCall of toolCalls) {
-        debug("🪚 " + JSON.stringify(toolCall));
+        debug("🪚  " + JSON.stringify(toolCall));
         if (toolCall.type === "function") {
           const toolOutput = { tool_call_id: toolCall.id };
           const functionArgs = JSON.parse(toolCall.function.arguments);
